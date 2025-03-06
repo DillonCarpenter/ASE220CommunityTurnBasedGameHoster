@@ -1,6 +1,19 @@
-
-function loadCards(){
+//http://jsonblob.com/1347223774080196608
+function loadPolls(){
     
+
+// GET request for remote image in node.js
+axios({
+    method: 'get',
+    url: 'https://jsonblob.com/1347223774080196608',
+    responseType: 'stream'
+  })
+    .then(function (response) {
+      xxonsole.log(response);
+    });
+
+
+
     const container = document.getElementById('poll-storage');
     container.innerHTML = '';
     let cardHTML = ''
