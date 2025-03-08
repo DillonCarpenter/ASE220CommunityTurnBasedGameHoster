@@ -7,6 +7,29 @@
         <div class="container-fluid" id="poll-storage">
         </div>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-        <script src="mainPage.js"></script>
+        <script>
+            axios.get('https://jsonblob.com/api/1347223774080196608')
+            .then(function (response) {
+                // handle success
+                console.log(response);
+                let pollStorage = document.getElementById('poll-storage');
+                const data = response.data;
+                data.forEach(poll => {
+                    const link = document.createElement('a');
+                    link.innerText = poll["Title"];
+                    link.href = `poll.html?title=${encodeURIComponent(poll["Title"])}`;
+                    pollStorage.appendChild(link);
+                    // <a> tags are inline, so the links will show up right next to each other. This is just a super basic test.
+                    //Will have to be changed to render actual css
+                });
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })
+            .finally(function () {
+                // always executed
+            });
+        </script>
     </body>
 </html>
