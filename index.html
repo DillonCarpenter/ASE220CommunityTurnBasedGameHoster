@@ -16,8 +16,8 @@
                 const data = response.data;
                 data.forEach(poll => {
                     const link = document.createElement('a');
-                    link.innerText = poll["Title"];
-                    link.href = `poll.html?title=${encodeURIComponent(poll["Title"])}`;
+                    link.innerText = poll["title"];
+                    link.href = `poll.html?title=${poll["title"]}`;
                     pollStorage.appendChild(link);
                     // <a> tags are inline, so the links will show up right next to each other. This is just a super basic test.
                     //Will have to be changed to render actual css
