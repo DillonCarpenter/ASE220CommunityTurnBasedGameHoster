@@ -1,0 +1,507 @@
+[
+    {
+      "title": "Battleship",
+      "board": {
+        "A1": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "A2": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "A3": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "A4": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "Sumbarine"
+        },
+        "A5": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "A6": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "A7": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "A8": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "A9": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "A10": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "B1": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "B2": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "B3": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "B4": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "Submarine"
+        },
+        "B5": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "B6": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "B7": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "B8": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "B9": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "B10": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "C1": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "C2": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "C3": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "C4": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "Submarine"
+        },
+        "C5": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "C6": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "C7": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "C8": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "C9": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "C10": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "D1": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "Carrier"
+        },
+        "D2": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "Carrier"
+        },
+        "D3": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "Carrier"
+        },
+        "D4": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "Carrier"
+        },
+        "D5": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "Carrier"
+        },
+        "D6": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "D7": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "D8": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "D9": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "D10": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "E1": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "E2": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "E3": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "E4": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "E5": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "E6": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "E7": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "E8": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "E9": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "E10": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "F1": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "Cruiser"
+        },
+        "F2": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "Cruiser"
+        },
+        "F3": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "Cruiser"
+        },
+        "F4": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "F5": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "F6": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "F7": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "F8": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "Battleship"
+        },
+        "F9": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "F10": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "G1": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "G2": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "G3": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "G4": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "G5": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "G6": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "G7": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "G8": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "Battleship"
+        },
+        "G9": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "G10": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "H1": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "H2": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "H3": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "H4": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "H5": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "H6": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "H7": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "H8": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "Battleship"
+        },
+        "H9": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "H10": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "I1": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "Destroyer"
+        },
+        "I2": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "Destroyer"
+        },
+        "I3": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "I4": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "I5": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "I6": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "I7": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "I8": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "Battleship"
+        },
+        "I9": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "I10": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "J1": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "J2": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "J3": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "J4": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "J5": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "J6": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "J7": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "J8": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "J9": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        },
+        "J10": {
+          "votes": 0,
+          "status": "pending",
+          "ship": "none"
+        }
+      }
+    }
+  ]
