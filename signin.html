@@ -7,7 +7,7 @@
     <body>
         <script src="users.json"></script>
         <h1>Sign in to play</h1>
-
+        <p id="textstuff"></p>
         <button onClick="signIn()">Sign In</button>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script>
@@ -15,6 +15,8 @@
             function signIn(){
                 signedIn = true;
                 console.log(signedIn);
+                sessionStorage.setItem("signedIn",JSON.stringify(signedIn))
+                document.getElementById('textstuff').innerHTML='This is a message from Lord Nergal. "I await you on the Dread Isle."' 
             }
         </script>
     </body>

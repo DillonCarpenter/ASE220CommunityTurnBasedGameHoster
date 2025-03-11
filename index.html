@@ -4,6 +4,11 @@
         <link rel="stylesheet" href="index.css" type="text/css">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     </head>
+    <style>
+        btn-primary{
+            align-self: center;
+        }
+    </style>
     <body>
         <div class="main-image">
         <header class="container text-center p-3">
@@ -15,6 +20,9 @@
                 </div>
             </header>
         </header>
+        <div id="sign-in">
+            <button class="btn btn-primary" style="background-color: gray;;" onClick="signIn()">Sign In</button>
+        </div>
         <div class="dropdown d-flex justify-content-center position-relative">
             <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
               Select Game Poll
@@ -23,6 +31,21 @@
             </ul>
           </div>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <!--Hide the Dropdown until after the user has signed in-->
+        <script>
+            var signedIn;
+            if(!signedIn){
+                document.getElementById('dropdownMenuButton1').style.display = "none";
+            }
+            function signIn(){
+                signedIn = true;
+                console.log(signedIn);
+                sessionStorage.setItem("signedIn",JSON.stringify(true))
+                document.getElementById('dropdownMenuButton1').style.display = 'block';
+                document.getElementById('sign-in').style.display = "none";
+            }
+        </script>
+        <!--/hiding stuff-->
         <script>
             axios.get('https://jsonblob.com/api/1347223774080196608')
             .then(function (response) {
