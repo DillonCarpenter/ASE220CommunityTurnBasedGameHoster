@@ -10,11 +10,15 @@
                     <h1>
                         Welcome to Battleship!
                     </h1>
+                    <h4>
+                        Please vote on the next move:
+                    </h4>
                 </div>
             </header>
         </header>
 
-        <article class="container text-center p-1 m-1" id ="Battleship-Board">
+        <article class="container text-center d-flex justify-content-center">
+            <div id="Battleship-Board" class="text-center"></div>
         </article>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script>
@@ -29,16 +33,15 @@
                 //Each cell gets a button
                 let iterator = 1; //Want to create a new row every 10 entries
                 let row = document.createElement('div');
-                row.className = "row d-flex justify-content-center";
+                row.className = "row justify-content-center";
 
                 for(const coordinate in boardData){
                     //create the cell
                     let cell = document.createElement('div');
-
-                    let button = `<button type="button" class="btn btn-secondary w-100 text-center">${coordinate}</button>`
+                    cell.className = "col-1 p-1";
+                    let button = `<button type="button" class="btn btn-secondary w-100 text-center d-flex align-items-center justify-content-center">${coordinate}</button>`
                     cell.innerHTML += button;
 
-                    cell.className = "col-1 p-1";
                     //cell.innerHTML = `<h3>${coordinate}</h3>`;
 
                     cell.addEventListener('click', function(){
@@ -67,7 +70,7 @@
                         BattleshipBoard.appendChild(row);
                         //Create a new row
                         row = document.createElement('div');
-                        row.className = "row d-flex justify-content-center";
+                        row.className = "row justify-content-center";
                     }
                     iterator += 1;
                 }
