@@ -29,12 +29,18 @@
                 //Each cell gets a button
                 let iterator = 1; //Want to create a new row every 10 entries
                 let row = document.createElement('div');
-                row.className = "row";
+                row.className = "row d-flex justify-content-center";
+
                 for(const coordinate in boardData){
                     //create the cell
                     let cell = document.createElement('div');
-                    cell.className = "col-1";
-                    cell.innerHTML = `<h3>${coordinate}</h3>`;
+
+                    let button = `<button type="button" class="btn btn-secondary w-100 text-center">${coordinate}</button>`
+                    cell.innerHTML += button;
+
+                    cell.className = "col-1 p-1";
+                    //cell.innerHTML = `<h3>${coordinate}</h3>`;
+
                     cell.addEventListener('click', function(){
                         //Update the data from GET
                         data[0]["board"][coordinate]["votes"] += 1;
@@ -61,7 +67,7 @@
                         BattleshipBoard.appendChild(row);
                         //Create a new row
                         row = document.createElement('div');
-                        row.className = "row";
+                        row.className = "row d-flex justify-content-center";
                     }
                     iterator += 1;
                 }
