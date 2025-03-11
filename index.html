@@ -1,11 +1,27 @@
 <html>
     <head>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <link rel="stylesheet" href="index.css" type="text/css">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     </head>
     <body>
-        <div class="container-fluid" id="poll-storage">
-        </div>
+        <div class="main-image">
+        <header class="container text-center p-3">
+            <header class="row">
+                <div class="col">
+                    <h1 class="text-white">
+                        Welcome to The Game Hoster!
+                    </h1>
+                </div>
+            </header>
+        </header>
+        <div class="dropdown d-flex justify-content-center position-relative">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+              Select Game Poll
+            </button>
+            <ul class="dropdown-menu" id="poll-storage" aria-labelledby="dropdownMenuButton1">
+            </ul>
+          </div>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script>
             axios.get('https://jsonblob.com/api/1347223774080196608')
@@ -14,13 +30,17 @@
                 console.log(response);
                 let pollStorage = document.getElementById('poll-storage');
                 const data = response.data;
+                let listItems = '';
                 data.forEach(poll => {
+
+
                     const link = document.createElement('a');
                     link.innerText = poll["title"];
                     link.href = `poll.html?title=${poll["title"]}`;
-                    pollStorage.appendChild(link);
                     // <a> tags are inline, so the links will show up right next to each other. This is just a super basic test.
                     //Will have to be changed to render actual css
+                    listItems += `<li><a class="dropdown-item" href="${link.href}">${link.innerText}</a></li>`
+                    pollStorage.innerHTML += listItems;
                 });
             })
             .catch(function (error) {
@@ -31,5 +51,6 @@
                 // always executed
             });
         </script>
+        </div>
     </body>
 </html>
