@@ -1,2 +1,6 @@
 # ASE220CommunityTurnBasedGameHoster
-For a college Class
+Responsibilities:
+
+Dillon Carpenter: Battleship Plaintext Rendering and Poll Setup through Axios and JSON Blob
+Drew Hanson: CSS and HTML Template implementation
+David-Michael Davies: User Sign in functionality (Will handle future Sign in and Sign up responsibilities server side)
