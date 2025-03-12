@@ -47,6 +47,22 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
   </div>
 </nav>
 
+<!--Hide the game(s) from the sidebar until after the user has signed in-->
+<script>
+  var signedIn;
+  if(!signedIn){
+      document.getElementById('poll-storage').style.display = "none";
+  }
+  function signIn(){
+      signedIn = true;
+      console.log(signedIn);
+      sessionStorage.setItem("signedIn",JSON.stringify(true))
+      document.getElementById('poll-storage').style.display = 'block';
+      document.getElementById('sign-in').style.display = "none";
+  }
+</script>
+<!--/hiding stuff-->
+
 <!-- Overlay effect when opening sidebar on small screens -->
 <div class="w3-overlay w3-hide-large" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
 
@@ -61,7 +77,10 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
     <div class="w3-third w3-container">
     </div>
   </div>
-
+<!--Sign in button-->
+<div id="sign-in">
+  <button class="btn btn-primary" style="background-color: gray;" onClick="signIn()">Sign In</button>
+</div>
 
 
 <!-- END MAIN -->
