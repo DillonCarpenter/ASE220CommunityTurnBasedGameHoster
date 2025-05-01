@@ -1,6 +1,7 @@
 const { MongoClient, ServerApiVersion } = require('mongodb');
+
+// Setup
 const uri = "mongodb+srv://general:general@gamehostcluster.g3wicus.mongodb.net/?retryWrites=true&w=majority&appName=GameHostCluster";
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -8,16 +9,32 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
-async function run() {
+
+let db;
+
+// Connect to the database
+async function connectDB() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
+    db = client.db("ASE220GameHosterDB");
+    console.log("Connected to DB");
+  } catch (err) {
+    console.error("Failed to connect to DB:", err);
   }
 }
-run().catch(console.dir);
+
+// Fetch data from a collection
+async function getCollectionData(collectionName) {
+  try {
+    const collection = db.collection(collectionName);
+    const data = await collection.find().toArray();
+    return data;
+  } catch (err) {
+    console.error("Failed to fetch data:", err);
+    throw err;
+  }
+}
+
+connectDB();
+
+module.exports = { getCollectionData };
