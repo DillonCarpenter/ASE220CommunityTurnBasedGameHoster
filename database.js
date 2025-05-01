@@ -1,9 +1,7 @@
-const express = require('express');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 
-const app = express();
+// Setup
 const uri = "mongodb+srv://general:general@gamehostcluster.g3wicus.mongodb.net/?retryWrites=true&w=majority&appName=GameHostCluster";
-
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -13,32 +11,30 @@ const client = new MongoClient(uri, {
 });
 
 let db;
-// Connect to DB
+
+// Connect to the database
 async function connectDB() {
   try {
     await client.connect();
     db = client.db("ASE220GameHosterDB");
-    console.log("Connected to MongoDB");
+    console.log("Connected to DB");
   } catch (err) {
-    console.error("Failed to connect to MongoDB:", err);
+    console.error("Failed to connect to DB:", err);
   }
 }
 
-// Get the data
-app.get('/', async (req, res) => {
+// Fetch data from a collection
+async function getCollectionData(collectionName) {
   try {
-    const collection = db.collection("BattleShipGames");
+    const collection = db.collection(collectionName);
     const data = await collection.find().toArray();
-    res.json(data);
+    return data;
   } catch (err) {
     console.error("Failed to fetch data:", err);
-    res.status(500).send("Internal Server Error");
+    throw err;
   }
-});
+}
 
-// Start the server
-connectDB().then(() => {
-  app.listen(3000, () => {
-    console.log("Server is running on port 3000");
-  });
-});
+connectDB();
+
+module.exports = { getCollectionData };
