@@ -1,0 +1,20 @@
+{
+  "name": "ase220communityturnbasedgamehoster",
+  "version": "1.0.0",
+  "description": "For a college Class",
+  "homepage": "https://github.com/DillonCarpenter/ASE220CommunityTurnBasedGameHoster#readme",
+  "bugs": {
+    "url": "https://github.com/DillonCarpenter/ASE220CommunityTurnBasedGameHoster/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DillonCarpenter/ASE220CommunityTurnBasedGameHoster.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "database.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
