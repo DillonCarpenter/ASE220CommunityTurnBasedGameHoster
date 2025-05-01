@@ -1,6 +1,9 @@
+const express = require('express');
 const { MongoClient, ServerApiVersion } = require('mongodb');
+
+const app = express();
 const uri = "mongodb+srv://general:general@gamehostcluster.g3wicus.mongodb.net/?retryWrites=true&w=majority&appName=GameHostCluster";
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -8,16 +11,34 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
-async function run() {
+
+let db;
+// Connect to DB
+async function connectDB() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
+    db = client.db("ASE220GameHosterDB");
+    console.log("Connected to MongoDB");
+  } catch (err) {
+    console.error("Failed to connect to MongoDB:", err);
   }
 }
-run().catch(console.dir);
+
+// Get the data
+app.get('/', async (req, res) => {
+  try {
+    const collection = db.collection("BattleShipGames");
+    const data = await collection.find().toArray();
+    res.json(data);
+  } catch (err) {
+    console.error("Failed to fetch data:", err);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// Start the server
+connectDB().then(() => {
+  app.listen(3000, () => {
+    console.log("Server is running on port 3000");
+  });
+});
