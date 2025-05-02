@@ -1,28 +1,117 @@
-<html>
-    <head>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-        <link rel="stylesheet" href="index.css" type="text/css">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-    </head>
-    <body>
-        <div class="main-image">
-        <header class="container text-center p-3">
-            <header class="row">
-                <div class="col">
-                    <h1 class="text-white">
-                        Welcome to The Game Hoster!
-                    </h1>
-                </div>
-            </header>
-        </header>
-        <div class="dropdown d-flex justify-content-center position-relative">
-            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-              Select Game Poll
-            </button>
-            <ul class="dropdown-menu" id="poll-storage" aria-labelledby="dropdownMenuButton1">
-            </ul>
-          </div>
-        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Game Hoster</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-black.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+<link rel="stylesheet" href="index.css" type="text/css">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+<style>
+html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
+.w3-sidebar {
+  z-index: 3;
+  width: 250px;
+  top: 43px;
+  bottom: 0;
+  height: inherit;
+}
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="w3-top">
+  <div class="w3-bar w3-theme w3-top w3-left-align w3-large">
+    <a class="w3-bar-item w3-button w3-right w3-hide-large w3-hover-white w3-large w3-theme-l1" href="javascript:void(0)" onclick="w3_open()"><i class="fa fa-bars"></i></a>
+    <a href="#" class="w3-bar-item w3-button w3-theme-l1">Game Hoster</a>
+    <a href="#" class="w3-bar-item w3-button w3-hide-small w3-hover-white">placeholder if needed</a>
+    <a href="#" class="w3-bar-item w3-button w3-hide-small w3-hover-white">placeholder if needed</a>
+    <a href="#" class="w3-bar-item w3-button w3-hide-small w3-hover-white">placeholder if needed</a>
+    <a href="#" class="w3-bar-item w3-button w3-hide-small w3-hover-white">placeholder if needed</a>
+  </div>
+</div>
+
+<!-- Sidebar -->
+<nav class="w3-sidebar w3-bar-block w3-collapse w3-large w3-theme-l5 w3-animate-left" id="mySidebar">
+  <a href="javascript:void(0)" onclick="w3_close()" class="w3-right w3-xlarge w3-padding-large w3-hover-black w3-hide-large" title="Close Menu">
+    <i class="fa fa-remove"></i>
+  </a>
+  <h4 class="w3-bar-item"><b>Current Games:</b></h4>
+  <div id="poll-storage">
+
+  </div>
+</nav>
+
+<!--Hide the game(s) from the sidebar until after the user has signed in-->
+<script>
+  var signedIn;
+  if(!signedIn){
+      document.getElementById('poll-storage').style.display = "none";
+  }
+  function signIn(){
+      signedIn = true;
+      console.log(signedIn);
+      sessionStorage.setItem("signedIn",JSON.stringify(true))
+      document.getElementById('poll-storage').style.display = 'block';
+      document.getElementById('sign-in').style.display = "none";
+  }
+</script>
+<!--/hiding stuff-->
+
+<!-- Overlay effect when opening sidebar on small screens -->
+<div class="w3-overlay w3-hide-large" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
+
+<!-- Main content: shift it to the right by 250 pixels when the sidebar is visible -->
+<div class="w3-main" style="margin-left:250px">
+
+  <div class="w3-row w3-padding-64">
+    <div class="w3-twothird w3-container">
+      <h1 class="w3-text-teal">Game Hoster</h1>
+      <p>This website allows games to be hosted of different types. For each game, users can log in and vote for different moves, which will then be played out after a set time based on popular vote. So far, battleship is being worked on, with more game potentially coming in the future!</p>
+    </div>
+    <div class="w3-third w3-container">
+    </div>
+  </div>
+<!--Sign in button-->
+<div id="sign-in">
+  <button class="btn btn-primary" style="background-color: gray;" onClick="signIn()">Sign In</button>
+</div>
+
+
+<!-- END MAIN -->
+</div>
+
+<script>
+// Get the Sidebar
+var mySidebar = document.getElementById("mySidebar");
+
+// Get the DIV with overlay effect
+var overlayBg = document.getElementById("myOverlay");
+
+// Toggle between showing and hiding the sidebar, and add overlay effect
+function w3_open() {
+  if (mySidebar.style.display === 'block') {
+    mySidebar.style.display = 'none';
+    overlayBg.style.display = "none";
+  } else {
+    mySidebar.style.display = 'block';
+    overlayBg.style.display = "block";
+  }
+}
+
+// Close the sidebar with the close button
+function w3_close() {
+  mySidebar.style.display = "none";
+  overlayBg.style.display = "none";
+}
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script>
             axios.get('https://jsonblob.com/api/1347223774080196608')
             .then(function (response) {
@@ -39,7 +128,7 @@
                     link.href = `poll.html?title=${poll["title"]}`;
                     // <a> tags are inline, so the links will show up right next to each other. This is just a super basic test.
                     //Will have to be changed to render actual css
-                    listItems += `<li><a class="dropdown-item" href="${link.href}">${link.innerText}</a></li>`
+                    listItems += `  <a class="w3-bar-item w3-button w3-hover-black" href="${link.href}">${link.innerText}</a>`
                     pollStorage.innerHTML += listItems;
                 });
             })
@@ -51,6 +140,5 @@
                 // always executed
             });
         </script>
-        </div>
-    </body>
+</body>
 </html>
