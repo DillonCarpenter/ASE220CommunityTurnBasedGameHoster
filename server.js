@@ -1,13 +1,14 @@
 const express = require('express');
-const { getCollectionData } = require('./db');
+const { db, getCollectionData } = require('./database.js');
 
 const app = express();
 
 // Get the data
 app.get('/', async (req, res) => {
   try {
-    const data = await getCollectionData("BattleShipGames");
-    res.json(data);
+    const Battleship = await getCollectionData("BattleShipGames");
+    console.log("Battleship");
+    res.json(Battleship);
   } catch (err) {
     console.error("Failed to fetch data:", err);
     res.status(500).send("Internal Server Error");
@@ -35,16 +36,35 @@ app.post('/api/user/create', async (req, res) => {
 //Battleship Endpoints
 
 app.get('/api/Battleship/:gameID', async (req, res) => {
-  const gameID = req.params.gameID;
-  //Get the Correct Battleship document
+  //Get the data
+  try {
+
+    const gameID = req.params.gameID;
+    console.log(gameID); //Make sure I received the ID correctly
+
+    //Finding document
+    const game = await db.collection('BattleShipGames').findOne({ "gameID": gameID }).toArray();
+    console.log(game);
+
+    if (!game) {
+      return res.status(404).json({ error: 'Game not found.' });
+    }
+
+    res.json(game);
+
+  } catch (err) {
+    console.error("Failed to fetch data:", err);
+    res.status(500).json({ error: 'Server error.' });
+  }
 });
 
-app.put('/api/Battleship/:gameID', async (req, res) => {
+
+app.post('/api/Battleship/:gameID/votes', async (req, res) => {
   const gameID = req.params.gameID;
-  //Intended to update a Battleship document
+  //Intended to update a Battleship document with the new vote.
 });
 
-app.post('/api/Battleship', async (req, res) => {
+app.post('/api/Battleship/new', async (req, res) => {
 });
 // Start the server
 app.listen(3000, () => {
