@@ -113,24 +113,24 @@ function w3_close() {
 </script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script>
-            axios.get('https://jsonblob.com/api/1347223774080196608')
-            .then(function (response) {
+            fetch('http://localhost:3000/')
+
+            .then(response => { 
+              if (!response.ok) throw new Error("Network response was NO GOOD, BAD NEWS!");
+                return response.json();
+
+            }).then(data => {
                 // handle success
-                console.log(response);
                 let pollStorage = document.getElementById('poll-storage');
-                const data = response.data;
                 let listItems = '';
-                data.forEach(poll => {
+                data.forEach(gameID => {
 
-
-                    const link = document.createElement('a');
-                    link.innerText = poll["title"];
-                    link.href = `poll.html?title=${poll["title"]}`;
+                    const link = `poll.html?title=${gameID}`;
                     // <a> tags are inline, so the links will show up right next to each other. This is just a super basic test.
                     //Will have to be changed to render actual css
-                    listItems += `  <a class="w3-bar-item w3-button w3-hover-black" href="${link.href}">${link.innerText}</a>`
-                    pollStorage.innerHTML += listItems;
+                    listItems += `  <a class="w3-bar-item w3-button w3-hover-black" href="${link}">${title}</a>`
                 });
+                pollStorage.innerHTML = listItems;
             })
             .catch(function (error) {
                 // handle error

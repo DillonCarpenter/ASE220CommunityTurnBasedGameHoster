@@ -1,8 +1,8 @@
 const express = require('express');
 const { getCollectionData, connectDB } = require('./database.js');
-
+const cors = require('cors');
 const app = express();
-
+app.use(cors());
 // Get the data
 connectDB().then(() => {
   app.get('/', async (req, res) => {
