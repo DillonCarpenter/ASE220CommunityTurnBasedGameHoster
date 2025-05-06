@@ -11,12 +11,14 @@ const client = new MongoClient(uri, {
 });
 
 // Connect to the database
+
 let db;
 
 async function connectDB() {
   await client.connect();
   db = client.db("ASE220GameHosterDB");
   return db;
+
 }
 
 function getDB() {
