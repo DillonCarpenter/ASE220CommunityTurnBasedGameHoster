@@ -10,36 +10,29 @@ const client = new MongoClient(uri, {
   }
 });
 
+// Connect to the database
 
 let db;
 
-// Connect to the database
 async function connectDB() {
-  try {
-    await client.connect();
-    db = client.db("ASE220GameHosterDB");
-    console.log("Connected to DB");
+  await client.connect();
+  db = client.db("ASE220GameHosterDB");
+  return db;
 
-    return db;
-
-  } catch (err) {
-    console.error("Failed to connect to DB:", err);
-  }
 }
+
+function getDB() {
+    if (!db) throw new Error("DB not connected. Call connectDB() first.");
+    return db;
+  }
+  
 
 // Fetch data from a collection
 async function getCollectionData(collectionName) {
-  try {
-    const collection = db.collection(collectionName);
-    const data = await collection.find().toArray();
-    return data;
-  } catch (err) {
-    console.error("Failed to fetch data:", err);
-    throw err;
+    const collection = getDB().collection(collectionName);
+    return await collection.find().toArray();
   }
-}
 
 
-db = connectDB();
+module.exports = { connectDB, getCollectionData };
 
-module.exports = { db, getCollectionData };

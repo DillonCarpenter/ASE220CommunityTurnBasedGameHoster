@@ -1,24 +1,29 @@
 const express = require('express');
-
-const { db, getCollectionData } = require('./database.js');
-
+const { getCollectionData, connectDB } = require('./database.js');
+const cors = require('cors');
 
 const app = express();
-
+app.use(cors());
 // Get the data
-app.get('/', async (req, res) => {
-  try {
 
-    const Battleship = await getCollectionData("BattleShipGames");
-    console.log("Battleship");
-    res.json(Battleship);
+connectDB().then(() => {
+  app.get('/', async (req, res) => {
+    try {
+      const data = await getCollectionData("BattleShipGames"); 
+      res.json(data);
+    } catch (err) {
+      console.error("Failed to fetch data:", err);
+      res.status(500).send("Internal Server Error");
+    }
+  });
 
-  } catch (err) {
-    console.error("Failed to fetch data:", err);
-    res.status(500).send("Internal Server Error");
-  }
-});
-
+  // Start the server
+  app.listen(3000, () => {
+    console.log("Server is running on port 3000");
+  });
+}).catch(err => {
+  console.error("Failed to connect to DB:", err);
+}
 
 app.get('/api/user/:userID', async (req, res) => {
   const userID = req.params.userID;
