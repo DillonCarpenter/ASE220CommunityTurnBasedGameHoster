@@ -1,0 +1,43 @@
+### Battleship Endpoints
+@gameID = "1234"
+
+### GET a specific Battleship document
+GET http://127.0.0.1:3000/api/Battleship/{{gameID}}
+
+### Update a specific Battleship document with a new vote
+POST http://127.0.0.1:3000/api/Battleship/{{gameID}}/votes
+Content-Type: application/json
+
+{
+    "handleVote": true
+}
+
+### Create a new Battleship document
+POST http://127.0.0.1:3000/api/Battleship/new-document
+Content-Type: application/json
+
+{
+    "test": true
+}
+
+### User Data Endpoints
+@userID = 1234
+
+### Get user information
+GET http://127.0.0.1:3000/api/user/{{userID}}
+
+### Update user information
+PUT http://127.0.0.1:3000/api/user/{{userID}}
+Content-Type: application/json
+
+{
+    "test": true
+}
+
+### Create a new user
+POST http://127.0.0.1:3000/api/user
+Content-Type: application/json
+
+{
+    "test": true
+}
