@@ -34,5 +34,5 @@ async function getCollectionData(collectionName) {
   }
 
 
-module.exports = { connectDB, getCollectionData };
+module.exports = {connectDB, getCollectionData, getDB};
 
