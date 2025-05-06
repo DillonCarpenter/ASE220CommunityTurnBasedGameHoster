@@ -16,20 +16,55 @@
                 </div>
             </header>
         </header>
+        
+        <div class="text-center my-3">
+            <button id="enemyButton" class="btn btn-outline-primary me-2">Friendly Board</button>
+            <button id="friendlyButton" class="btn btn-primary">Enemy Board</button>
+        </div>
 
+        
         <article class="container text-center d-flex justify-content-center">
             <div id="Battleship-Board" class="text-center"></div>
         </article>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script>
+            renderBoard(1);
+            const button1 = document.getElementById("enemyButton");
+            const button2 = document.getElementById("friendlyButton");
+            button1.addEventListener("click", function() {
+                swapButtonColors(button1, button2);
+                renderBoard(0);
+            });
+            button2.addEventListener("click", function() {
+                swapButtonColors(button2, button1);
+                renderBoard(1);
+            });
+
+            // Function to swap colors
+            function swapButtonColors(button1, button2) {
+                if (!button1.classList.contains("btn-primary")) {
+                    button1.classList.toggle("btn-primary");
+                    button1.classList.toggle("btn-outline-primary");
+                    button2.classList.toggle("btn-primary");
+                    button2.classList.toggle("btn-outline-primary");
+                }
+            }
+            function renderBoard(board){
+            let BattleshipBoard = document.getElementById("Battleship-Board");
             gameID = "1234"; //Set for now
             axios.get(`http://127.0.0.1:3000/api/Battleship/${gameID}`)
             .then(function (response) {
                 // handle success
                 console.log(response);
                 const data = response.data;
-                const boardData = data[0]["board"];
-                let BattleshipBoard = document.getElementById("Battleship-Board");
+                BattleshipBoard.innerHTML = '';
+                var boardData;
+                if(board == 0){
+                    boardData = data["FriendlyBoard"];
+                }
+                if(board == 1){
+                    boardData = data["EnemyBoard"]; 
+                }
                 //Render the board row by row
                 //Each cell gets a button
                 let iterator = 1; //Want to create a new row every 10 entries
@@ -94,6 +129,7 @@
             .finally(function () {
                 // always executed
             });
+        }
         </script>
     </body>
 </html>
