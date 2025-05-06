@@ -10,13 +10,18 @@ const client = new MongoClient(uri, {
   }
 });
 
+
+let db;
+
 // Connect to the database
 async function connectDB() {
   try {
     await client.connect();
     db = client.db("ASE220GameHosterDB");
     console.log("Connected to DB");
+
     return db;
+
   } catch (err) {
     console.error("Failed to connect to DB:", err);
   }
@@ -33,6 +38,7 @@ async function getCollectionData(collectionName) {
     throw err;
   }
 }
+
 
 db = connectDB();
 

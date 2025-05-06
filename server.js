@@ -1,19 +1,24 @@
 const express = require('express');
+
 const { db, getCollectionData } = require('./database.js');
+
 
 const app = express();
 
 // Get the data
 app.get('/', async (req, res) => {
   try {
+
     const Battleship = await getCollectionData("BattleShipGames");
     console.log("Battleship");
     res.json(Battleship);
+
   } catch (err) {
     console.error("Failed to fetch data:", err);
     res.status(500).send("Internal Server Error");
   }
 });
+
 
 app.get('/api/user/:userID', async (req, res) => {
   const userID = req.params.userID;
@@ -66,7 +71,4 @@ app.post('/api/Battleship/:gameID/votes', async (req, res) => {
 
 app.post('/api/Battleship/new', async (req, res) => {
 });
-// Start the server
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
-});
+

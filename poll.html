@@ -56,8 +56,10 @@
                     if(boardData[coordinate]['status'] == 'pending'){
                         cell.addEventListener('click', function(){
                             //Update the data from GET
+
                             //PutRequest
                             axios.post(`http://127.0.0.1:3000/api/Battleship/${gameID}/votes`, {"vote": coordinate})
+
                             .then(function (response) {
                                 console.log(response);
                             })
