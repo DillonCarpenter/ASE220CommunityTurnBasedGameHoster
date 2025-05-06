@@ -28,6 +28,7 @@
         </article>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script>
+
             renderBoard(1);
             const button1 = document.getElementById("enemyButton");
             const button2 = document.getElementById("friendlyButton");
@@ -49,9 +50,31 @@
                     button2.classList.toggle("btn-outline-primary");
                 }
             }
+            async function updateVote(gameID, coordinate) {
+                try {
+                    const response = await axios.post(`http://127.0.0.1:3000/api/Battleship/${gameID}/votes`, {
+                        coordinate: coordinate
+                    });
+
+                    console.log(response); // Log response to verify structure
+                    if (response.data.message === 'Vote updated successfully.') {
+                        alert(`Your vote for ${coordinate} has been counted!`);
+                        renderBoard(1); // Refresh the board after updating the vote
+                    } else {
+                        console.error("Unexpected response message:", response.data.message);
+                    }
+                } catch (error) {
+                    console.error("Error updating vote:", error);
+                    alert("There was an issue casting your vote.");
+                }
+                window.location.href = "index.html";
+            }
+
+
             function renderBoard(board){
             let BattleshipBoard = document.getElementById("Battleship-Board");
-            gameID = "1234"; //Set for now
+            const urlParams = new URLSearchParams(window.location.search);
+            const gameID = urlParams.get('id'); 
             axios.get(`http://127.0.0.1:3000/api/Battleship/${gameID}`)
             .then(function (response) {
                 // handle success
@@ -76,36 +99,24 @@
                     let cell = document.createElement('div');
                     cell.className = "col-1 p-1";
                     let coordinateStatus = '';
+                    let button = '';
                     if(boardData[coordinate]['status'] == 'pending'){
                         coordinateStatus = coordinate //Coordinate has not been fired at so it can be voted on
+                        button = `<button type="button" class="btn btn-info w-100 text-center d-flex align-items-center justify-content-center">${coordinateStatus}</button>`
                     }else if(boardData[coordinate]['status'] == 'hit'){
                         coordinateStatus = 'hit';
+                        button = `<button type="button" class="btn btn-danger w-100 text-center d-flex align-items-center justify-content-center">${coordinateStatus}</button>`
                     }else if(boardData[coordinate]['status'] == 'miss'){
                         coordinateStatus = 'miss';
+                        button = `<button type="button" class="btn btn-secondary w-100 text-center d-flex align-items-center justify-content-center">${coordinateStatus}</button>`
                     }
-                    let button = `<button type="button" class="btn btn-secondary w-100 text-center d-flex align-items-center justify-content-center">${coordinateStatus}</button>`
                     cell.innerHTML += button;
 
                     //cell.innerHTML = `<h3>${coordinate}</h3>`;
                     //If the status is pending, THEN we add the event listener.
-                    if(boardData[coordinate]['status'] == 'pending'){
+                    if((boardData[coordinate]['status'] == 'pending') && board == 1){
                         cell.addEventListener('click', function(){
-                            //Update the data from GET
-
-                            //PutRequest
-                            axios.post(`http://127.0.0.1:3000/api/Battleship/${gameID}/votes`, {"vote": coordinate})
-
-                            .then(function (response) {
-                                console.log(response);
-                            })
-                            .catch(function (error) {
-                                console.log(error);
-                            })
-                            .finally(function () {
-                                //Always executed
-                                // Redirect back to index.html to prevent spam clicking
-                                window.location.href = "index.html";
-                            });
+                                updateVote(gameID, coordinate)
                         });
                     }
 
