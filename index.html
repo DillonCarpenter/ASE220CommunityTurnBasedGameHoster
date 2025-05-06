@@ -59,6 +59,8 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
       sessionStorage.setItem("signedIn",JSON.stringify(true))
       document.getElementById('poll-storage').style.display = 'block';
       document.getElementById('sign-in').style.display = "none";
+
+      fetchGameList();
   }
 </script>
 <!--/hiding stuff-->
@@ -113,6 +115,8 @@ function w3_close() {
 </script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script>
+          function fetchGameList() {
+            console.log("Fetching Game List")
             fetch('http://localhost:3000/')
 
             .then(response => { 
@@ -121,14 +125,16 @@ function w3_close() {
 
             }).then(data => {
                 // handle success
+                console.log("Game list received:", data);
+
                 let pollStorage = document.getElementById('poll-storage');
                 let listItems = '';
-                data.forEach(gameID => {
+                data.forEach(game => {
 
-                    const link = `poll.html?title=${gameID}`;
+                    const link = `poll.html?id=${game.gameID}`;
                     // <a> tags are inline, so the links will show up right next to each other. This is just a super basic test.
                     //Will have to be changed to render actual css
-                    listItems += `  <a class="w3-bar-item w3-button w3-hover-black" href="${link}">${title}</a>`
+                    listItems += `  <a class="w3-bar-item w3-button w3-hover-black" href="${link}">${game.title}</a>`
                 });
                 pollStorage.innerHTML = listItems;
             })
@@ -139,6 +145,7 @@ function w3_close() {
             .finally(function () {
                 // always executed
             });
+          }
         </script>
 </body>
 </html>
