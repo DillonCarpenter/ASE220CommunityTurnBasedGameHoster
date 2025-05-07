@@ -12,6 +12,7 @@ connectDB().then(() => {
     console.log("Server is running on port 3000");
     //Commenting out this logic for now.
     /*
+
     while(gameWon == 0){
       let seconds = 33;
       const countdownElement = document.getElementById('countdown');
