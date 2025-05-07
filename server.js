@@ -132,7 +132,7 @@ app.post('/api/Battleship/:gameID/votes', async (req, res) => {
   }catch(err){
     res.status(500).json({ error: 'Server error.' });
   }
-  
+
 });
 
 app.post('/api/Battleship/new-document', async (req, res) => {
