@@ -10,6 +10,9 @@ app.use(express.json());
 connectDB().then(() => {
   app.listen(3000, () => {
     console.log("Server is running on port 3000");
+    //Commenting out this logic for now.
+    /*
+
     while(gameWon == 0){
       let seconds = 33;
       const countdownElement = document.getElementById('countdown');
@@ -27,6 +30,7 @@ connectDB().then(() => {
           }
       }, 1000);
     }
+    */
   });
 }).catch(err => {
   console.error("Failed to connect to DB:", err);
@@ -68,7 +72,7 @@ app.get('/api/Battleship/:gameID', async (req, res) => {
     console.log(gameID); // Confirm received ID
 
     const db = getDB();
-    const game = await db.collection('BattleShipGames').findOne({ gameID });
+    const game = await db.collection('BattleShipGames').findOne({gameID : gameID });
 
     if (!game) {
       return res.status(404).json({ error: 'Game not found.' });
@@ -85,15 +89,63 @@ app.post('/api/Battleship/:gameID/votes', async (req, res) => {
   const gameID = req.params.gameID;
   const { coordinate } = req.body;
   const db = getDB();
-  const game = await db.collection('BattleShipGames').findOne({ gameID });
+  const game = await db.collection('BattleShipGames').findOne({ gameID : gameID });
   const enemyBoard = game.EnemyBoard;
+  let friendlyBoard = game.FriendlyBoard;
   enemyBoard[coordinate].votes += 1;
+  totalVotes = game['voteCount'] +=1;
   await db.collection('BattleShipGames').updateOne(
-    { gameID },
-    { $set: { EnemyBoard: enemyBoard } }
+    { gameID : gameID },
+    { $set: { 
+      voteCount: totalVotes,
+      EnemyBoard: enemyBoard } }
   );
+  //Once the vote limit is reached, pick the move with the highest votes and call the enemyAI function.
+  if(totalVotes => game['voteLimit']){
+    friendlyBoard = enemyAI(friendlyBoard);
+    let popularMove = "";
+    let popularVotes = 0;
+    for(const cell in enemyBoard){
+      if(enemyBoard[cell]['votes'] > popularVotes){
+        popularVotes = enemyBoard[cell]['votes'];
+        popularMove = cell;
+      }
+      enemyBoard[cell]['votes'] = 0; //Reset board votes
+    }
+    //update the baord based on popularMove
+    if(enemyBoard[popularMove]['ship'] == 'none'){
+      enemyBoard[popularMove]['status'] = 'miss';
+    }else{
+      enemyBoard[popularBoard]['status'] = 'hit';
+    }
+    await db.collection('BattleShipGames').updateOne(
+      { gameID : gameID },
+      { $set: { 
+        voteCount: 0,
+        EnemyBoard: enemyBoard,
+        FriendlyBoard: friendlyBoard
+      } }
+    );
+  }
 });
 
 app.post('/api/Battleship/new', async (req, res) => {
   // Create new game logic
 });
+
+//This function is the enemy AI. Feed it the board with the friendly ships on it as that is the board the enemy fires on.
+function enemyAI(boardState){
+  let coordinateList = [];
+  for(const coordinate in boardState){
+    if (boardState[coordinate]['status'] == "pending"){
+      coordinateList.push(coordinate);
+    }
+  }
+  let choosenCoordinate =  coordinateList[Math.floor(Math.random() * coordinateList.length)]; //Pick a coordinate out of the list
+  if(boardState[choosenCoordinate]['ship'] == 'none'){
+    boardState[choosenCoordinate]['status'] = 'miss';
+  }else{
+    boardState[choosenCoordinate]['status'] = 'hit';
+  }
+  return boardState;
+}
