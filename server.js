@@ -86,51 +86,767 @@ app.get('/api/Battleship/:gameID', async (req, res) => {
 });
 
 app.post('/api/Battleship/:gameID/votes', async (req, res) => {
-  const gameID = req.params.gameID;
-  const { coordinate } = req.body;
-  const db = getDB();
-  const game = await db.collection('BattleShipGames').findOne({ gameID : gameID });
-  const enemyBoard = game.EnemyBoard;
-  let friendlyBoard = game.FriendlyBoard;
-  enemyBoard[coordinate].votes += 1;
-  totalVotes = game['voteCount'] +=1;
-  await db.collection('BattleShipGames').updateOne(
-    { gameID : gameID },
-    { $set: { 
-      voteCount: totalVotes,
-      EnemyBoard: enemyBoard } }
-  );
-  //Once the vote limit is reached, pick the move with the highest votes and call the enemyAI function.
-  if(totalVotes => game['voteLimit']){
-    friendlyBoard = enemyAI(friendlyBoard);
-    let popularMove = "";
-    let popularVotes = 0;
-    for(const cell in enemyBoard){
-      if(enemyBoard[cell]['votes'] > popularVotes){
-        popularVotes = enemyBoard[cell]['votes'];
-        popularMove = cell;
-      }
-      enemyBoard[cell]['votes'] = 0; //Reset board votes
-    }
-    //update the baord based on popularMove
-    if(enemyBoard[popularMove]['ship'] == 'none'){
-      enemyBoard[popularMove]['status'] = 'miss';
-    }else{
-      enemyBoard[popularBoard]['status'] = 'hit';
-    }
+  try {
+    const gameID = req.params.gameID;
+    const { coordinate } = req.body;
+    const db = getDB();
+    const game = await db.collection('BattleShipGames').findOne({ gameID : gameID });
+    const enemyBoard = game.EnemyBoard;
+    let friendlyBoard = game.FriendlyBoard;
+    enemyBoard[coordinate].votes += 1;
+    totalVotes = game['voteCount'] +=1;
     await db.collection('BattleShipGames').updateOne(
       { gameID : gameID },
       { $set: { 
-        voteCount: 0,
-        EnemyBoard: enemyBoard,
-        FriendlyBoard: friendlyBoard
-      } }
+        voteCount: totalVotes,
+        EnemyBoard: enemyBoard } }
     );
+    //Once the vote limit is reached, pick the move with the highest votes and call the enemyAI function.
+    if(totalVotes => game['voteLimit']){
+      friendlyBoard = enemyAI(friendlyBoard);
+      let popularMove = "";
+      let popularVotes = 0;
+      for(const cell in enemyBoard){
+        if(enemyBoard[cell]['votes'] > popularVotes){
+          popularVotes = enemyBoard[cell]['votes'];
+          popularMove = cell;
+        }
+        enemyBoard[cell]['votes'] = 0; //Reset board votes
+      }
+      //update the baord based on popularMove
+      if(enemyBoard[popularMove]['ship'] == 'none'){
+        enemyBoard[popularMove]['status'] = 'miss';
+      }else{
+        enemyBoard[popularBoard]['status'] = 'hit';
+      }
+      await db.collection('BattleShipGames').updateOne(
+        { gameID : gameID },
+        { $set: { 
+          voteCount: 0,
+          EnemyBoard: enemyBoard,
+          FriendlyBoard: friendlyBoard
+        } }
+      );
+    }
+    res.end();
+  }catch(err){
+    res.status(500).json({ error: 'Server error.' });
   }
+
 });
 
-app.post('/api/Battleship/new', async (req, res) => {
-  // Create new game logic
+app.post('/api/Battleship/new-document', async (req, res) => {
+  //I think this is called destructuring
+  try{
+    const { 'game-id': gameId, 'vote-limit': voteLimit } = req.body;
+
+    // Basic validation
+    if (!gameId || typeof voteLimit === 'undefined') {
+        return res.status(400).json({ message: 'Missing required fields.' });
+    }
+
+    // TODO: Create the document in the database
+    // Example: await db.collection('battleship').insertOne({ gameId, voteLimit });
+    const db = getDB();
+    await db.collection('BattleShipGames').insertOne(
+      {
+        "title": "Battleship",
+        "gameID": gameId,
+        "EnemyBoard": {
+          "A1": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "A2": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "A3": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "A4": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "Sumbarine"
+          },
+          "A5": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "A6": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "A7": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "A8": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "A9": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "A10": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "B1": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "B2": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "B3": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "B4": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "Submarine"
+          },
+          "B5": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "B6": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "B7": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "B8": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "B9": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "B10": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "C1": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "C2": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "C3": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "C4": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "Submarine"
+          },
+          "C5": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "C6": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "C7": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "C8": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "C9": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "C10": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "D1": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "Carrier"
+          },
+          "D2": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "Carrier"
+          },
+          "D3": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "Carrier"
+          },
+          "D4": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "Carrier"
+          },
+          "D5": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "Carrier"
+          },
+          "D6": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "D7": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "D8": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "D9": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "D10": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "E1": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "E2": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "E3": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "E4": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "E5": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "E6": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "E7": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "E8": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "E9": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "E10": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "F1": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "Cruiser"
+          },
+          "F2": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "Cruiser"
+          },
+          "F3": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "Cruiser"
+          },
+          "F4": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "F5": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "F6": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "F7": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "F8": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "Battleship"
+          },
+          "F9": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "F10": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "G1": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "G2": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "G3": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "G4": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "G5": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "G6": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "G7": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "G8": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "Battleship"
+          },
+          "G9": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "G10": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "H1": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "H2": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "H3": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "H4": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "H5": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "H6": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "H7": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "H8": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "Battleship"
+          },
+          "H9": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "H10": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "I1": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "Destroyer"
+          },
+          "I2": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "Destroyer"
+          },
+          "I3": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "I4": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "I5": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "I6": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "I7": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "I8": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "Battleship"
+          },
+          "I9": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "I10": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "J1": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "J2": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "J3": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "J4": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "J5": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "J6": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "J7": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "J8": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "J9": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          },
+          "J10": {
+            "votes": { "$numberInt": "0" },
+            "status": "pending",
+            "ship": "none"
+          }
+        },
+        "FriendlyBoard": {
+          "A1": { "status": "pending", "ship": "none" },
+          "A2": { "status": "pending", "ship": "none" },
+          "A3": { "status": "pending", "ship": "none" },
+          "A4": {
+            "status": "pending",
+            "ship": "Sumbarine"
+          },
+          "A5": { "status": "pending", "ship": "none" },
+          "A6": { "status": "pending", "ship": "none" },
+          "A7": { "status": "pending", "ship": "none" },
+          "A8": { "status": "pending", "ship": "none" },
+          "A9": { "status": "pending", "ship": "none" },
+          "A10": {
+            "status": "pending",
+            "ship": "none"
+          },
+          "B1": { "status": "pending", "ship": "none" },
+          "B2": { "status": "pending", "ship": "none" },
+          "B3": { "status": "pending", "ship": "none" },
+          "B4": {
+            "status": "pending",
+            "ship": "Submarine"
+          },
+          "B5": { "status": "pending", "ship": "none" },
+          "B6": { "status": "pending", "ship": "none" },
+          "B7": { "status": "pending", "ship": "none" },
+          "B8": { "status": "pending", "ship": "none" },
+          "B9": { "status": "pending", "ship": "none" },
+          "B10": {
+            "status": "pending",
+            "ship": "none"
+          },
+          "C1": { "status": "pending", "ship": "none" },
+          "C2": { "status": "pending", "ship": "none" },
+          "C3": { "status": "pending", "ship": "none" },
+          "C4": {
+            "status": "pending",
+            "ship": "Submarine"
+          },
+          "C5": { "status": "pending", "ship": "none" },
+          "C6": { "status": "pending", "ship": "none" },
+          "C7": { "status": "pending", "ship": "none" },
+          "C8": { "status": "pending", "ship": "none" },
+          "C9": { "status": "pending", "ship": "none" },
+          "C10": {
+            "status": "pending",
+            "ship": "none"
+          },
+          "D1": {
+            "status": "pending",
+            "ship": "Carrier"
+          },
+          "D2": {
+            "status": "pending",
+            "ship": "Carrier"
+          },
+          "D3": {
+            "status": "pending",
+            "ship": "Carrier"
+          },
+          "D4": {
+            "status": "pending",
+            "ship": "Carrier"
+          },
+          "D5": {
+            "status": "pending",
+            "ship": "Carrier"
+          },
+          "D6": { "status": "pending", "ship": "none" },
+          "D7": { "status": "pending", "ship": "none" },
+          "D8": { "status": "pending", "ship": "none" },
+          "D9": { "status": "pending", "ship": "none" },
+          "D10": {
+            "status": "pending",
+            "ship": "none"
+          },
+          "E1": { "status": "pending", "ship": "none" },
+          "E2": { "status": "pending", "ship": "none" },
+          "E3": { "status": "pending", "ship": "none" },
+          "E4": { "status": "pending", "ship": "none" },
+          "E5": { "status": "pending", "ship": "none" },
+          "E6": { "status": "pending", "ship": "none" },
+          "E7": { "status": "pending", "ship": "none" },
+          "E8": { "status": "pending", "ship": "none" },
+          "E9": { "status": "pending", "ship": "none" },
+          "E10": {
+            "status": "pending",
+            "ship": "none"
+          },
+          "F1": {
+            "status": "pending",
+            "ship": "Cruiser"
+          },
+          "F2": {
+            "status": "pending",
+            "ship": "Cruiser"
+          },
+          "F3": {
+            "status": "pending",
+            "ship": "Cruiser"
+          },
+          "F4": { "status": "pending", "ship": "none" },
+          "F5": { "status": "pending", "ship": "none" },
+          "F6": { "status": "pending", "ship": "none" },
+          "F7": { "status": "pending", "ship": "none" },
+          "F8": {
+            "status": "pending",
+            "ship": "Battleship"
+          },
+          "F9": { "status": "pending", "ship": "none" },
+          "F10": {
+            "status": "pending",
+            "ship": "none"
+          },
+          "G1": { "status": "pending", "ship": "none" },
+          "G2": { "status": "pending", "ship": "none" },
+          "G3": { "status": "pending", "ship": "none" },
+          "G4": { "status": "pending", "ship": "none" },
+          "G5": { "status": "pending", "ship": "none" },
+          "G6": { "status": "pending", "ship": "none" },
+          "G7": { "status": "pending", "ship": "none" },
+          "G8": {
+            "status": "pending",
+            "ship": "Battleship"
+          },
+          "G9": { "status": "pending", "ship": "none" },
+          "G10": {
+            "status": "pending",
+            "ship": "none"
+          },
+          "H1": { "status": "pending", "ship": "none" },
+          "H2": { "status": "pending", "ship": "none" },
+          "H3": { "status": "pending", "ship": "none" },
+          "H4": { "status": "pending", "ship": "none" },
+          "H5": { "status": "pending", "ship": "none" },
+          "H6": { "status": "pending", "ship": "none" },
+          "H7": { "status": "pending", "ship": "none" },
+          "H8": {
+            "status": "pending",
+            "ship": "Battleship"
+          },
+          "H9": { "status": "pending", "ship": "none" },
+          "H10": {
+            "status": "pending",
+            "ship": "none"
+          },
+          "I1": {
+            "status": "pending",
+            "ship": "Destroyer"
+          },
+          "I2": {
+            "status": "pending",
+            "ship": "Destroyer"
+          },
+          "I3": { "status": "pending", "ship": "none" },
+          "I4": { "status": "pending", "ship": "none" },
+          "I5": { "status": "pending", "ship": "none" },
+          "I6": { "status": "pending", "ship": "none" },
+          "I7": { "status": "pending", "ship": "none" },
+          "I8": {
+            "status": "pending",
+            "ship": "Battleship"
+          },
+          "I9": { "status": "pending", "ship": "none" },
+          "I10": {
+            "status": "pending",
+            "ship": "none"
+          },
+          "J1": { "status": "pending", "ship": "none" },
+          "J2": { "status": "pending", "ship": "none" },
+          "J3": { "status": "pending", "ship": "none" },
+          "J4": { "status": "pending", "ship": "none" },
+          "J5": { "status": "pending", "ship": "none" },
+          "J6": { "status": "pending", "ship": "none" },
+          "J7": { "status": "pending", "ship": "none" },
+          "J8": { "status": "pending", "ship": "none" },
+          "J9": { "status": "pending", "ship": "none" },
+          "J10": { "status": "pending", "ship": "none" }
+        },
+        "pollStatus": "open",
+        "voteCount": "0",
+        "voteLimit": voteLimit
+      }
+    );
+
+    console.log('Received:', { gameId, voteLimit });
+
+    res.status(201).json({ message: 'Document created successfully!' });
+  }catch(err){
+    res.status(500).json({ error: 'Server error.' });
+  }
+  
 });
 
 //This function is the enemy AI. Feed it the board with the friendly ships on it as that is the board the enemy fires on.
