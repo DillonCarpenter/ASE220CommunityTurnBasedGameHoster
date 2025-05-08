@@ -13,6 +13,7 @@
                     <h4>
                         Please vote on the next move:
                     </h4>
+                    <h5 id="timerStorage"></h5>
                 </div>
             </header>
         </header>
@@ -28,6 +29,60 @@
         </article>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script>
+            const urlParams = new URLSearchParams(window.location.search);
+            const gameID = urlParams.get('id');
+            let timer = 0;
+            let timerElement = document.getElementById("timerStorage");
+            let timerInterval;
+            var currentlyRenderedBoard = 1;
+
+            // Fetch timer
+            async function fetchTimerFromServer() {
+                try {
+                    const response = await axios.get(`http://localhost:3000/api/Battleship/${gameID}/timer`);
+                    timer = response.data.timer;
+                } catch (error) {
+                    console.error("Failed to fetch timer:", error);
+                }
+            }
+
+            // Update timer
+            function startVisualTimer() {
+                if (timerInterval) clearInterval(timerInterval);
+                timerInterval = setInterval(() => {
+                    console.log("Fetched timer from server:", timer);
+                    if (timer > 0) {
+                        timer--;
+                        timerElement.textContent = `${timer} seconds remaining`;
+                    } else {
+                        timerElement.textContent = "Voting over";
+                        renderBoard(currentlyRenderedBoard);
+                    }
+                }, 1000);
+            }
+
+            // Sync with backend periodically because doing it for every second is obviously bad
+            function startTimerSync() {
+            clearInterval(timerInterval); // Make sure we only have one interval
+            timerInterval = setInterval(async () => {
+                await fetchTimerFromServer(); // This updates the global `timer` variable
+                if (timer > 0) {
+                    timerElement.textContent = `${timer} seconds remaining`;
+                    timer--; // Decrement for next second
+                } else {
+                    timerElement.textContent = "Voting over";
+                }
+            }, 1000); // Run every second
+}
+
+
+            // Start when page loads
+            window.onload = async () => {
+                await fetchTimerFromServer(); // Initial value
+                startTimerSync(); // Start updating and syncing
+                renderBoard(1);
+            };
+
 
             renderBoard(1);
             const button1 = document.getElementById("enemyButton");
@@ -72,9 +127,11 @@
 
 
             function renderBoard(board){
+            currentlyRenderedBoard = board;
             let BattleshipBoard = document.getElementById("Battleship-Board");
             const urlParams = new URLSearchParams(window.location.search);
             const gameID = urlParams.get('id'); 
+            var timer;
             axios.get(`http://127.0.0.1:3000/api/Battleship/${gameID}`)
             .then(function (response) {
                 // handle success
