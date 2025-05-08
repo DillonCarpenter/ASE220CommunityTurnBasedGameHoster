@@ -34,6 +34,7 @@
             let timer = 0;
             let timerElement = document.getElementById("timerStorage");
             let timerInterval;
+            var currentlyRenderedBoard = 1;
 
             // Fetch timer
             async function fetchTimerFromServer() {
@@ -55,6 +56,7 @@
                         timerElement.textContent = `${timer} seconds remaining`;
                     } else {
                         timerElement.textContent = "Voting over";
+                        renderBoard(currentlyRenderedBoard);
                     }
                 }, 1000);
             }
@@ -125,6 +127,7 @@
 
 
             function renderBoard(board){
+            currentlyRenderedBoard = board;
             let BattleshipBoard = document.getElementById("Battleship-Board");
             const urlParams = new URLSearchParams(window.location.search);
             const gameID = urlParams.get('id'); 
