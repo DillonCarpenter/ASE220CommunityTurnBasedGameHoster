@@ -10,11 +10,12 @@
         }
     </style>
     <body>
-        <h1>Sign in</h1>
-        <form id="login-form">
-            <label>Username: <input type="text" name="username"></label><br>
-            <label>Password: <input type="password" name="password"></label>
-            <button type="submit">Sign In</a>
+        <h1>Game Hoster</h1>
+        <h4>Please sign in to play:</h4>
+        <form id="login-form" action="index.html">
+            <label>Username: <input type="text" id="username"></label><br>
+            <label>Password: <input type="password" id="password"></label><br>
+            <button type="submit" class="btn btn-primary">Sign In</button>
         </form>
         <script>
             const button = document.getElementById("login-form");
@@ -28,7 +29,12 @@
               })
             })
             const result = await response.json();
-            alert(result.message);
+            if (result.message === 'Login successful!'){
+                localStorage.setItem('signedIn', document.getElementById('username').value);
+                window.location.href = "index.html"
+            } else {
+                alert(result.message);
+            }
         });
         </script>
     </body>

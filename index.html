@@ -41,31 +41,12 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
   <a href="javascript:void(0)" onclick="w3_close()" class="w3-right w3-xlarge w3-padding-large w3-hover-black w3-hide-large" title="Close Menu">
     <i class="fa fa-remove"></i>
   </a>
+  <h4 class="w3-bar-item" id="welcome-text"></h4>
   <h4 class="w3-bar-item"><b>Current Games:</b></h4>
   <div id="poll-storage">
 
   </div>
 </nav>
-
-<!--Hide the game(s) from the sidebar until after the user has signed in-->
-<script>
-  var signedIn;
-  console.log(signedIn);
-  if(!signedIn){
-      document.getElementById('poll-storage').style.display = "none";
-  }
-  function signIn(){
-      window.location.href = "signin.html"
-      console.log(signedIn);
-      sessionStorage.setItem("signedIn",JSON.stringify(true))
-      document.getElementById('poll-storage').style.display = 'block';
-      document.getElementById('sign-in').style.display = "none";
-      document.getElementById('battleship-create').innerText = 'Create Battleship';
-      document.getElementById('battleship-create').href = 'create.html';
-      fetchGameList();
-  }
-</script>
-<!--/hiding stuff-->
 
 <!-- Overlay effect when opening sidebar on small screens -->
 <div class="w3-overlay w3-hide-large" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
@@ -83,14 +64,38 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
   </div>
 <!--Sign in button-->
 <div id="sign-in">
-  <button class="btn btn-primary" style="background-color: gray;" onClick="signIn()">Sign In</button>
+  <button class="btn btn-primary" style="background-color: gray;" id="sign-in">Sign In</button>
 </div>
-
+<!--Sign out button-->
+<div id="sign-out">
+    <button class="btn btn-primary" style="background-color: gray;" id="sign-in">Sign Out</button>
+  </div>
 
 <!-- END MAIN -->
 </div>
-
+<!--Hide the game(s) from the sidebar until after the user has signed in-->
 <script>
+    const user = localStorage.getItem('signedIn');
+    if (user) {
+      document.getElementById("welcome-text").innerHTML += `<p>Welcome, ${user}!</p>`;
+    } 
+    console.log(user);
+    if(!user){
+        document.getElementById('poll-storage').style.display = "none";
+        document.getElementById('sign-out').style.display = "none";
+
+    }else{
+        document.getElementById('poll-storage').style.display = 'block';
+        document.getElementById('sign-in').style.display = "none";
+        document.getElementById('battleship-create').innerText = 'Create Battleship';
+        document.getElementById('battleship-create').href = 'create.html';
+        document.getElementById('sign-out').style.display = "block";
+    }
+    const signInButton = document.getElementById("sign-in");
+    const signOutButton = document.getElementById("sign-out");
+    signInButton.addEventListener("click", function(){
+    window.location.href = "login.html"
+    })
 // Get the Sidebar
 var mySidebar = document.getElementById("mySidebar");
 
@@ -116,39 +121,44 @@ function w3_close() {
 
 </script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-        <script>
-          function fetchGameList() {
-            console.log("Fetching Game List")
-            fetch('http://localhost:3000/')
-
-            .then(response => { 
-              if (!response.ok) throw new Error("Network response was NO GOOD, BAD NEWS!");
-                return response.json();
-
-            }).then(data => {
-                // handle success
-                console.log("Game list received:", data);
-
-                let pollStorage = document.getElementById('poll-storage');
-                let listItems = '';
-                data.forEach(game => {
-                    if(game.gameID != "Default"){
-                      const link = `poll.html?id=${game.gameID}`;
-                      // <a> tags are inline, so the links will show up right next to each other. This is just a super basic test.
-                      //Will have to be changed to render actual css
-                      listItems += `  <a class="w3-bar-item w3-button w3-hover-black" href="${link}">${game.title}</a>`
-                    }
-                });
-                pollStorage.innerHTML = listItems;
-            })
-            .catch(function (error) {
-                // handle error
-                console.log(error);
-            })
-            .finally(function () {
-                // always executed
+    <script>
+      function fetchGameList() {
+        console.log("Fetching Game List")
+        fetch('http://localhost:3000/')
+        .then(response => { 
+          if (!response.ok) throw new Error("Network response was NO GOOD, BAD NEWS!");
+            return response.json();
+        }).then(data => {
+            // handle success
+            console.log("Game list received:", data);
+            let pollStorage = document.getElementById('poll-storage');
+            let listItems = '';
+            data.forEach(game => {
+                if(game.gameID != "Default"){
+                  const link = `poll.html?id=${game.gameID}`;
+                  // <a> tags are inline, so the links will show up right next to each other. This is just a super basic test.
+                  //Will have to be changed to render actual css
+                  listItems += `  <a class="w3-bar-item w3-button w3-hover-black" href="${link}">${game.title}</a>`
+                }
             });
-          }
-        </script>
+            pollStorage.innerHTML = listItems;
+        })
+        .catch(function (error) {
+            // handle error
+            console.log(error);
+        })
+        .finally(function () {
+            // always executed
+        });
+      }
+      if(user)
+      {
+        fetchGameList();
+        signOutButton.addEventListener("click", function(){
+            localStorage.removeItem("signedIn");
+            window.location.href = "signout.html"
+        });
+      }
+    </script>
 </body>
 </html>
