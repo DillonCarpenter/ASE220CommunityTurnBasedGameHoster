@@ -23,7 +23,7 @@ async function startGames() {
   // Loop until all games are over
   while (!allGamesOver) {
     try {
-      // Get all games with "pending" status to update their timers
+      // Get all games with pending status to update their timers
       const games = await db.collection('BattleShipGames').find({ gameStatus: "pending" }).toArray();
       
       for (const game of games) {
@@ -54,25 +54,32 @@ async function startGames() {
             let popularMove = "";
             let maxVotes = 0;
             for (const cell in enemyBoard) {
-              if (enemyBoard[cell]?.votes > maxVotes) {  // Added optional chaining to avoid undefined errors
+              if (enemyBoard[cell]?.votes > maxVotes) {
                 maxVotes = enemyBoard[cell].votes;
                 popularMove = cell;
               }
             }
 
             // Apply the most popular move to the board
+            console.log("cowabunga");
             if (enemyBoard[popularMove]) {
               if (enemyBoard[popularMove].ship === 'none') {
                 enemyBoard[popularMove].status = 'miss';
               } else {
                 enemyBoard[popularMove].status = 'hit';
-                checkWin(gameID);  // Make sure the checkWin function exists and handles the win logic
+                checkWin(gameID); 
+              }
+            }
+            for (const cell in enemyBoard) {
+              if (enemyBoard[cell]?.votes) {
+                enemyBoard[cell].votes = 0;
               }
             }
 
+
             // Play AI's move
-            friendlyBoard = enemyAI(friendlyBoard);  // Ensure enemyAI function works as expected
-            checkWin(gameID);  // Ensure this is called after the AI move
+            friendlyBoard = enemyAI(friendlyBoard);
+            checkWin(gameID);
 
             // Update the game with the new boards and reset the vote count
             await db.collection('BattleShipGames').updateOne(
@@ -80,8 +87,8 @@ async function startGames() {
               {
                 $set: {
                   voteCount: 0,
-                  EnemyBoard: enemyBoard,  // Corrected from `enemyBoard` to `EnemyBoard` to match MongoDB fields
-                  FriendlyBoard: friendlyBoard,  // Corrected from `friendlyBoard` to `FriendlyBoard` to match MongoDB fields
+                  EnemyBoard: enemyBoard,
+                  FriendlyBoard: friendlyBoard,
                   timer: 30,  // Reset the timer
                 }
               }
@@ -261,9 +268,12 @@ app.post('/api/Battleship/:gameID/votes', async (req, res) => {
     const db = getDB();
     const game = await db.collection('BattleShipGames').findOne({ gameID : gameID });
     const enemyBoard = game.EnemyBoard;
+    const voteCap = game.voteLimit;
+    console.log(game.voteLimit);
     let friendlyBoard = game.FriendlyBoard;
     enemyBoard[coordinate].votes += 1;
-    totalVotes = game['voteCount'] +=1;
+    let totalVotes = game.voteCount + 1;
+    game.voteCount = totalVotes;
     await db.collection('BattleShipGames').updateOne(
       { gameID : gameID },
       { $set: { 
@@ -271,7 +281,9 @@ app.post('/api/Battleship/:gameID/votes', async (req, res) => {
         EnemyBoard: enemyBoard } }
     );
     //Once the vote limit is reached, pick the move with the highest votes and call the enemyAI function.
-    if(totalVotes => game['voteLimit']){
+    if(totalVotes >= voteCap){
+      console.log("totalVotes: ", totalVotes, " voteCap: ",voteCap);
+      console.log("just gonna shoot");
       friendlyBoard = enemyAI(friendlyBoard);
       let popularMove = "";
       let popularVotes = 0;
@@ -286,7 +298,7 @@ app.post('/api/Battleship/:gameID/votes', async (req, res) => {
       if(enemyBoard[popularMove]['ship'] == 'none'){
         enemyBoard[popularMove]['status'] = 'miss';
       }else{
-        enemyBoard[popularBoard]['status'] = 'hit';
+        enemyBoard[popularMove]['status'] = 'hit';
       }
       await db.collection('BattleShipGames').updateOne(
         { gameID : gameID },
@@ -296,9 +308,19 @@ app.post('/api/Battleship/:gameID/votes', async (req, res) => {
           FriendlyBoard: friendlyBoard
         } }
       );
+     await db.collection('BattleShipGames').updateOne(
+        { gameID : gameID },
+        { $set: { 
+          timer: 0,
+          voteCount: 0
+        } }
+      );
+
     }
-    res.end();
+    await checkWin(gameID);
+    res.json({ message: 'Vote updated successfully.' });
   }catch(err){
+    console.error("Server error:", err);
     res.status(500).json({ error: 'Server error.' });
   }
 

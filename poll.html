@@ -56,6 +56,9 @@
                         timerElement.textContent = `${timer} seconds remaining`;
                     } else {
                         timerElement.textContent = "Voting over";
+                        setTimeout(() => {
+                            renderBoard(currentlyRenderedBoard);
+                        }, 1000);
                         renderBoard(currentlyRenderedBoard);
                     }
                 }, 1000);
@@ -71,6 +74,10 @@
                     timer--; // Decrement for next second
                 } else {
                     timerElement.textContent = "Voting over";
+                    setTimeout(() => {
+                        renderBoard(currentlyRenderedBoard);
+                    }, 1000);
+                    renderBoard(currentlyRenderedBoard);
                 }
             }, 1000); // Run every second
 }
@@ -122,7 +129,7 @@
                     console.error("Error updating vote:", error);
                     alert("There was an issue casting your vote.");
                 }
-                window.location.href = "index.html";
+                //window.location.href = "index.html";
             }
 
 
