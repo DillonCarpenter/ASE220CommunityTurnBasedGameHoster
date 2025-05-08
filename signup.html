@@ -12,13 +12,30 @@
     <body>
         <h1>Register to play</h1>
         <h4>Create a username and password:</h4>
-        <form id="login-form" action="index.html">
+        <form id="register-form" action="index.html">
             <label>Username: <input type="text" id="username"></label><br>
             <label>Password: <input type="password" id="password"></label><br>
             <button type="submit" class="btn btn-primary">Sign Up</button>
         </form>
         <script>
-            
+        document.getElementById("register-form").addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const response = await fetch('http://localhost:3000/register', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value
+              })
+            })
+            const result = await response.json();
+            if (result.success){
+                localStorage.setItem('signedIn', document.getElementById('username').value);
+                window.location.href = "index.html"
+            } else {
+                alert(result.message);
+            }
+            });
         </script>
     </body>
 </html>

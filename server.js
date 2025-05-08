@@ -82,7 +82,25 @@ app.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Server error during login.' });
   }
 });
+//SignUp
+app.post('/register', async (req, res) => {
+  const db = getDB();
+  const { username, password } = req.body;
+  try {
+    const existingUser = await db.collection('UserCollection').findOne({ username });
 
+    if (existingUser) {
+      return res.json({ success: false, message: 'Username already exists.' });
+    }
+     //Use bcrypt to hash the password
+     await db.collection('UserCollection').insertOne({ username, password });
+
+     res.json({ success: true, message: 'Registration successful!' });
+   } catch (err) {
+     console.error('Registration error:', err);
+     res.status(500).json({ success: false, message: 'Server error during registration.' });
+   }
+});
 //Battleship Endpoints
 app.get('/api/Battleship/:gameID', async (req, res) => {
   try {
