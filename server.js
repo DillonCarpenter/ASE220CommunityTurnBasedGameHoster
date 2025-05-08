@@ -39,7 +39,7 @@ async function startGames() {
             { gameID },
             { $inc: { timer: -1 } }  // Decrement the timer by 1
           );
-        } else if (timer === 0) {
+        } else if (timer <= 0) {
           // Process the game when the timer runs out
           console.log(`Timer ended for game ${gameID}`);
 
@@ -67,7 +67,6 @@ async function startGames() {
                 enemyBoard[popularMove].status = 'miss';
               } else {
                 enemyBoard[popularMove].status = 'hit';
-                checkWin(gameID); 
               }
             }
             for (const cell in enemyBoard) {
@@ -76,10 +75,8 @@ async function startGames() {
               }
             }
 
-
             // Play AI's move
             friendlyBoard = enemyAI(friendlyBoard);
-            checkWin(gameID);
 
             // Update the game with the new boards and reset the vote count
             await db.collection('BattleShipGames').updateOne(
@@ -93,6 +90,7 @@ async function startGames() {
                 }
               }
             );
+            await checkWin(gameID); 
           }
         }
       }
@@ -146,6 +144,7 @@ async function checkWin(gameID){
         }
       }
     );
+    console.log("win")
   } else if (friendlyShipsNotHit == 0){
     await db.collection('BattleShipGames').updateOne(
       { gameID },
@@ -155,6 +154,9 @@ async function checkWin(gameID){
         }
       }
     );
+     console.log("lose")
+  } else {
+     console.log("no wins")
   }
 
 }
@@ -220,7 +222,7 @@ app.post('/api/user/create', async (req, res) => {
 app.get('/api/Battleship/:gameID', async (req, res) => {
   try {
     const gameID = req.params.gameID;
-    console.log(gameID); // Confirm received ID
+    //console.log(gameID); // Confirm received ID
 
     const db = getDB();
     const game = await db.collection('BattleShipGames').findOne({gameID : gameID });
@@ -251,6 +253,22 @@ app.get('/api/Battleship/:id/timer', async (req, res) => {
     }
   } catch (err) {
     console.error("Error fetching game timer:", err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+app.get('/api/Battleship/:id/status', async (req, res) => {
+  const gameID = req.params.id;
+  try {
+    const db = getDB();
+    const game = await db.collection('BattleShipGames').findOne({ gameID });
+
+    if (game) {
+      res.json({ status: game.status });
+    } else {
+      res.status(404).json({ error: 'Game not found' });
+    }
+  } catch (err) {
+    console.error("Error fetching game status:", err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -312,7 +330,7 @@ app.post('/api/Battleship/:gameID/votes', async (req, res) => {
         { gameID : gameID },
         { $set: { 
           timer: 0,
-          voteCount: 0
+          voteCount: 0 
         } }
       );
 
