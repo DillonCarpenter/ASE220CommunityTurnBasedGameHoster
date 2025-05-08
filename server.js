@@ -1,6 +1,7 @@
 const express = require('express');
 const { getCollectionData, connectDB, getDB } = require('./database.js');
 const cors = require('cors');
+const bcrypt = require('bcrypt');
 
 const app = express();
 app.use(cors());
@@ -72,7 +73,12 @@ app.post('/login', async (req, res) => {
     const db = getDB();
     const user = await db.collection('UserCollection').findOne({ username });
 
-    if (user && user.password === password) {
+    if (!user) {
+      res.json({ message: 'Invalid username or password.' });
+    }
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (isMatch) {
       res.json({ message: 'Login successful!' });
     } else {
       res.json({ message: 'Invalid username or password.' });
@@ -88,14 +94,13 @@ app.post('/register', async (req, res) => {
   const { username, password } = req.body;
   try {
     const existingUser = await db.collection('UserCollection').findOne({ username });
-
     if (existingUser) {
       return res.json({ success: false, message: 'Username already exists.' });
     }
      //Use bcrypt to hash the password
-     await db.collection('UserCollection').insertOne({ username, password });
-
-     res.json({ success: true, message: 'Registration successful!' });
+    const hashedPassword = await bcrypt.hash(password, 10);
+      await db.collection('UserCollection').insertOne({ username, password: hashedPassword });
+      res.json({ success: true, message: 'Registration successful!' });
    } catch (err) {
      console.error('Registration error:', err);
      res.status(500).json({ success: false, message: 'Server error during registration.' });
