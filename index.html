@@ -50,11 +50,12 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
 <!--Hide the game(s) from the sidebar until after the user has signed in-->
 <script>
   var signedIn;
+  console.log(signedIn);
   if(!signedIn){
       document.getElementById('poll-storage').style.display = "none";
   }
   function signIn(){
-      signedIn = true;
+      window.location.href = "signin.html"
       console.log(signedIn);
       sessionStorage.setItem("signedIn",JSON.stringify(true))
       document.getElementById('poll-storage').style.display = 'block';
