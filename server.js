@@ -305,7 +305,7 @@ app.post('/login', async (req, res) => {
 app.get('/api/Battleship/:gameID', async (req, res) => {
   try {
     const gameID = req.params.gameID;
-    console.log(gameID); // Confirm received ID
+    //console.log(gameID); // Confirm received ID
 
     const db = getDB();
     const game = await db.collection('BattleShipGames').findOne({gameID : gameID });
