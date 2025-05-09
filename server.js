@@ -2,13 +2,11 @@ const express = require('express');
 const { getCollectionData, connectDB, getDB } = require('./database.js');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
-
-
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Connect and start server
+// Connect and starts server
 connectDB().then(async () => {
   app.listen(3000, async () => {
     console.log("Server is running on port 3000");
@@ -18,7 +16,7 @@ connectDB().then(async () => {
   console.error("Failed to connect to DB:", err);
 });
 
-
+// Starts up all the games, along with timers, so everything can be played. It gets called on server starting.
 async function startGames() {
   const db = getDB();
   let allGamesOver = false;
@@ -29,6 +27,7 @@ async function startGames() {
       // Get all games with pending status to update their timers
       const games = await db.collection('BattleShipGames').find({ gameStatus: "pending" }).toArray();
       
+      // Loop through all games
       for (const game of games) {
         const gameID = game.gameID;
         const timer = game.timer;
@@ -40,20 +39,20 @@ async function startGames() {
         if (timer > 0) {
           await db.collection('BattleShipGames').updateOne(
             { gameID },
-            { $inc: { timer: -1 } }  // Decrement the timer by 1
+            { $inc: { timer: -1 } }  // Decrement the timer for countdown
           );
+
         } else if (timer <= 0) {
           // Process the game when the timer runs out
           console.log(`Timer ended for game ${gameID}`);
-
+          // If no one voted, just restart the timer
           if (voteCount === 0) {
-            // Reset timer
             await db.collection('BattleShipGames').updateOne(
               { gameID },
               { $set: { timer: 30 } }
             );
           } else {
-            // Find the most popular move
+            // Find the most popular move since timer ran out and there are votes
             let popularMove = "";
             let maxVotes = 0;
             for (const cell in enemyBoard) {
@@ -93,12 +92,13 @@ async function startGames() {
                 }
               }
             );
+            // Checking win just to be safe because there were lots of bugs with detecting wins
             await checkWin(gameID); 
           }
         }
       }
 
-      // Check if all games are over
+      // Check if all games are over, if so it will exit the main loop
       const remainingGames = await db.collection('BattleShipGames').find({ gameStatus: "pending" }).toArray();
       if (remainingGames.length === 0) {
         allGamesOver = true;
@@ -107,14 +107,15 @@ async function startGames() {
       console.error("Error updating game timers:", err);
     }
     
-    // Delay the next loop iteration to avoid a tight loop ( it was crashing every time)
-    await new Promise(resolve => setTimeout(resolve, 1000));  // Delay for 1 second
+    // Delay the next loop iteration to avoid a tight loop ( It was crashing the server every time,
+    // took like 2 hours to find this out. This was due to infinite looping which led to memory problems.)
+    await new Promise(resolve => setTimeout(resolve, 1000));  // Delays for 1 second to make sure no infinite looping problems
   }
 }
 
 
 
-// Checks for a win
+// Checks for a win given the gameID. If the users and bot hit the last square at the same turn, the player will win.
 async function checkWin(gameID){
   const db = getDB();
   const game = await db.collection('BattleShipGames').findOne({ gameID: gameID });
@@ -123,7 +124,8 @@ async function checkWin(gameID){
   const enemyBoard = game.EnemyBoard;
   const friendlyBoard = game.FriendlyBoard
 
-
+  // Tallys the amount of squares that have a ship and are not hit,
+  // which if more than 0, the game is not over. This is to test if the bot won.
   for (const cell in friendlyBoard) {
     const status = friendlyBoard[cell].status;
     const ship = friendlyBoard[cell].ship
@@ -131,6 +133,9 @@ async function checkWin(gameID){
       friendlyShipsNotHit++;
     }
   }
+
+  // Tallys the amount of squares that have a ship and are not hit,
+  // which if more than 0, the game is not over. This is to test if users won.
   for (const cell in enemyBoard) {
     const status = enemyBoard[cell].status;
     const ship = enemyBoard[cell].ship
@@ -138,6 +143,8 @@ async function checkWin(gameID){
       enemyShipsNotHit++;
     }
   }
+
+  // If users won, update database's gameStatus with "win"
   if(enemyShipsNotHit == 0){
     await db.collection('BattleShipGames').updateOne(
       { gameID },
@@ -148,6 +155,8 @@ async function checkWin(gameID){
       }
     );
     console.log("win")
+
+  // If bot won, update database's gameStatus with "lose"
   } else if (friendlyShipsNotHit == 0){
     await db.collection('BattleShipGames').updateOne(
       { gameID },
@@ -159,10 +168,14 @@ async function checkWin(gameID){
     );
      console.log("lose")
   } else {
+    // For debugging
      console.log("no wins")
   }
 
 }
+
+// Makes a move for the bot by giving it the board it uses, then choosing a square not previously shot at.
+// It returns the updated board which will get set in the database in the startGames function.
 function enemyAI(friendlyBoard) {
   const availableTargets = [];
 
@@ -190,6 +203,7 @@ function enemyAI(friendlyBoard) {
     console.log(`Enemy AI targeted ${target}: ${cell.status}`);
   }
 
+  // Returns updated board with the new square shot at.
   return friendlyBoard;
 }
 // Routes
@@ -215,11 +229,6 @@ app.put('/api/user/:userID', async (req, res) => {
   //Grab the response body and use it to update the user document
 });
 
-app.post('/api/user/create', async (req, res) => {
-  //Create a new user document for a user that just created an account
-  //Should probably verify that the account was successfully created as well
-});
-
 //Signin
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
@@ -243,6 +252,7 @@ app.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Server error during login.' });
   }
 });
+
 //SignUp
 app.post('/register', async (req, res) => {
   const db = getDB();
@@ -252,6 +262,7 @@ app.post('/register', async (req, res) => {
     if (existingUser) {
       return res.json({ success: false, message: 'Username already exists.' });
     }
+
      //Use bcrypt to hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
       await db.collection('UserCollection').insertOne({ username, password: hashedPassword });
@@ -261,6 +272,7 @@ app.post('/register', async (req, res) => {
      res.status(500).json({ success: false, message: 'Server error during registration.' });
    }
 });
+
 //Battleship Endpoints
 app.get('/api/Battleship/:gameID', async (req, res) => {
   try {
@@ -282,7 +294,6 @@ app.get('/api/Battleship/:gameID', async (req, res) => {
 });
 
 // Get timer for a game
-
 app.get('/api/Battleship/:id/timer', async (req, res) => {
   const gameID = req.params.id;
   try {
@@ -299,6 +310,8 @@ app.get('/api/Battleship/:id/timer', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+// Gets the gameStatus
 app.get('/api/Battleship/:id/status', async (req, res) => {
   const gameID = req.params.id;
   try {
@@ -316,6 +329,7 @@ app.get('/api/Battleship/:id/status', async (req, res) => {
   }
 });
 
+// Used to update votes, and handles voteLimit
 app.post('/api/Battleship/:gameID/votes', async (req, res) => {
   try {
     const gameID = req.params.gameID;
@@ -340,6 +354,7 @@ app.post('/api/Battleship/:gameID/votes', async (req, res) => {
         voteCount: totalVotes,
         EnemyBoard: enemyBoard } }
     );
+
     //Once the vote limit is reached, pick the move with the highest votes and call the enemyAI function.
     if(totalVotes >= voteCap){
       console.log("totalVotes: ", totalVotes, " voteCap: ",voteCap);
@@ -354,6 +369,7 @@ app.post('/api/Battleship/:gameID/votes', async (req, res) => {
         }
         enemyBoard[cell]['votes'] = 0; //Reset board votes
       }
+
       //update the baord based on popularMove
       if(enemyBoard[popularMove]['ship'] == 'none'){
         enemyBoard[popularMove]['status'] = 'miss';
@@ -386,6 +402,7 @@ app.post('/api/Battleship/:gameID/votes', async (req, res) => {
 
 });
 
+// For creating a new battship game
 app.post('/api/Battleship/new-document', async (req, res) => {
   //I think this is called destructuring
   try{
@@ -1089,7 +1106,8 @@ app.post('/api/Battleship/new-document', async (req, res) => {
         "voteCount": "0",
         "voteLimit": voteLimit,
         "timer": 30,
-        "gameStatus": "pending"
+        "gameStatus": "pending",
+        "alreadyVoted": []
       }
     );
 
