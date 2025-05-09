@@ -370,6 +370,7 @@ app.post('/api/Battleship/:gameID/votes', async (req, res) => {
     const enemyBoard = game.EnemyBoard;
     const voteCap = game.voteLimit;
     const alreadyVoted = game['alreadyVoted'];
+    alreadyVoted.push(username);
     console.log(game.voteLimit);
     let friendlyBoard = game.FriendlyBoard;
     enemyBoard[coordinate].votes += 1;
@@ -380,7 +381,7 @@ app.post('/api/Battleship/:gameID/votes', async (req, res) => {
       { $set: { 
         voteCount: totalVotes,
         EnemyBoard: enemyBoard,
-        alreadyVoted: alreadyVoted.push(username) } }
+        alreadyVoted: alreadyVoted } }
     );
 
     //Once the vote limit is reached, pick the move with the highest votes and call the enemyAI function.
