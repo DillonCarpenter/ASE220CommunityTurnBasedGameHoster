@@ -77,10 +77,10 @@ html,body,h1,h2,h3,h4,h5,h6 {
 <div class="w3-main" style="margin-left:250px">
     <!--Sign in button-->
     <div id="buttons">
-      <button class="btn btn-primary" id="sign-in">Sign In</button>
+        <button class="btn btn-primary" id="sign-in">Sign In</button>
     <!--Sign up button-->
         <button class="btn btn-primary" id="sign-up">Register</button>
-      </div>
+    </div>
       <!--Sign out button-->
     <div id="buttons">
         <button class="btn btn-primary" id="sign-out">Sign Out</button>
@@ -90,9 +90,11 @@ html,body,h1,h2,h3,h4,h5,h6 {
 </div>
 <!--Hide the game(s) from the sidebar until after the user has signed in-->
 <script>
-    const user = localStorage.getItem('signedIn');
+    const user = localStorage.getItem('token');
+    const username = localStorage.getItem('signedIn');
+    
     if (user) {
-      document.getElementById("welcome-text").innerHTML += `<p>Welcome, ${user}!</p>`;
+      document.getElementById("welcome-text").innerHTML += `<p>Welcome, ${username}!</p>`;
     } 
     console.log(user);
     if(!user){
@@ -109,9 +111,13 @@ html,body,h1,h2,h3,h4,h5,h6 {
     }
     const signInButton = document.getElementById("sign-in");
     const signOutButton = document.getElementById("sign-out");
+    const signUpButton = document.getElementById("sign-up");
     signInButton.addEventListener("click", function(){
     window.location.href = "login.html"
     })
+    signUpButton.addEventListener("click", function(){
+        window.location.href = "signup.html"
+    });
 // Get the Sidebar
 var mySidebar = document.getElementById("mySidebar");
 
@@ -167,11 +173,23 @@ function w3_close() {
             // always executed
         });
       }
+      function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Strip "Bearer"
+
+  if (!token) return res.sendStatus(401);
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403);
+    req.user = user;
+    next();
+  });
+}
       if(user)
       {
         fetchGameList();
         signOutButton.addEventListener("click", function(){
-            localStorage.removeItem("signedIn");
+            localStorage.removeItem("token");
             window.location.href = "signout.html"
         });
       }

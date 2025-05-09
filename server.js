@@ -2,6 +2,9 @@ const express = require('express');
 const { getCollectionData, connectDB, getDB } = require('./database.js');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const JWT_SECRET = 'your_super_secret_key'; // Store securely!
+
 
 const app = express();
 app.use(cors());
@@ -77,12 +80,15 @@ app.post('/login', async (req, res) => {
       res.json({ message: 'Invalid username or password.' });
     }
     const isMatch = await bcrypt.compare(password, user.password);
-
+    // Create JWT
+    const token = jwt.sign({ username: user.username }, JWT_SECRET, { expiresIn: '1h' });
     if (isMatch) {
-      res.json({ message: 'Login successful!' });
+      res.json({ message: 'Login successful!',token });
+      
     } else {
       res.json({ message: 'Invalid username or password.' });
     }
+
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ message: 'Server error during login.' });
@@ -105,7 +111,8 @@ app.post('/register', async (req, res) => {
      console.error('Registration error:', err);
      res.status(500).json({ success: false, message: 'Server error during registration.' });
    }
-});
+});//
+
 //Battleship Endpoints
 app.get('/api/Battleship/:gameID', async (req, res) => {
   try {
