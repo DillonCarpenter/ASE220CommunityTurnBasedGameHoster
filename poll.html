@@ -13,6 +13,7 @@
                     <h4 id="prompt">
                         Please vote on the next move:
                     </h4>
+                    <h5 id="timerStorage"></h5>
                 </div>
             </header>
         </header>
@@ -28,6 +29,92 @@
         </article>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script>
+
+            var gameStatus = "pending";
+            const urlParams = new URLSearchParams(window.location.search);
+            const gameID = urlParams.get('id');
+            let timer = 0;
+            let timerElement = document.getElementById("timerStorage");
+            let timerInterval;
+            var currentlyRenderedBoard = 1;
+
+            // Fetch timer
+            async function fetchTimerFromServer() {
+                try {
+                    const response = await axios.get(`http://127.0.0.1:3000/api/Battleship/${gameID}/timer`);
+                    timer = response.data.timer;
+                } catch (error) {
+                    console.error("Failed to fetch timer:", error);
+                }
+            }
+
+            // Update timer
+            function startVisualTimer() {
+                if (timerInterval) clearInterval(timerInterval);
+                timerInterval = setInterval(() => {
+                    console.log("Fetched timer from server:", timer);
+                    if (timer > 0) {
+                        if(gameStatus == "pending"){
+                            timer--;
+                            timerElement.textContent = `${timer} seconds remaining`;
+                        }
+                    } else if(gameStatus != "pending"){
+                        timerElement.textContent = gameStatus;
+                    } else {
+                        timerElement.textContent = "Voting over";
+                        gameStatus = axios.get(`http://127.0.0.1:3000/api/Battleship/${gameID}/status`);
+                        setTimeout(() => {
+                            renderBoard(currentlyRenderedBoard);
+                        }, 1000);
+                        renderBoard(currentlyRenderedBoard);
+                    }
+                }, 1000);
+            }
+
+            // Sync with backend periodically because doing it for every second is obviously bad
+            function startTimerSync() {
+                clearInterval(timerInterval); // Make sure we only have one interval
+                timerInterval = setInterval(async () => {
+                    await fetchTimerFromServer(); // Update timer
+                    
+                        axios.get(`http://127.0.0.1:3000/api/Battleship/${gameID}`)
+                        .then(function (response) {
+                            // handle success
+                            gameStatus = response.data.gameStatus;
+                        }).catch(function (error) {
+                            // handle error
+                            console.log(error);
+                        });
+                        timerElement.textContent = gameStatus;
+
+                    if (timer > 0) {
+                        if (gameStatus === "pending") {
+                            timerElement.textContent = `${timer} seconds remaining`;
+                            timer--;
+                        }
+                    } else if (gameStatus !== "pending") {
+                        renderBoard(currentlyRenderedBoard);
+                        timerElement.textContent = gameStatus;
+                        clearInterval(timerInterval); // stop timer
+                    }else {
+                        timerElement.textContent = "Voting over";
+                        setTimeout(() => {
+                            renderBoard(currentlyRenderedBoard);
+                        }, 1000);
+                        renderBoard(currentlyRenderedBoard);
+                    }
+                }, 1000); // Run every second
+            }
+
+
+
+            // Start when page loads
+            window.onload = async () => {
+                await fetchTimerFromServer();
+                startTimerSync(); // Start updating timer
+                renderBoard(1);
+            };
+
 
             renderBoard(1);
             const button1 = document.getElementById("enemyButton");
@@ -72,9 +159,11 @@
 
 
             function renderBoard(board){
+            currentlyRenderedBoard = board;
             let BattleshipBoard = document.getElementById("Battleship-Board");
             const urlParams = new URLSearchParams(window.location.search);
             const gameID = urlParams.get('id'); 
+            var timer;
             axios.get(`http://127.0.0.1:3000/api/Battleship/${gameID}`)
             .then(function (response) {
                 // handle success
@@ -82,6 +171,7 @@
                 const data = response.data;
                 BattleshipBoard.innerHTML = '';
                 var boardData;
+                gameStatus = data.gameStatus; 
                 if(board == 0){
                     boardData = data["FriendlyBoard"];
                 }
