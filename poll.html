@@ -29,6 +29,7 @@
         </article>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <script>
+
             var gameStatus = "pending";
             const urlParams = new URLSearchParams(window.location.search);
             const gameID = urlParams.get('id');
@@ -153,7 +154,7 @@
                     console.error("Error updating vote:", error);
                     alert("There was an issue casting your vote.");
                 }
-                //window.location.href = "index.html";
+                window.location.href = "index.html";
             }
 
 
@@ -230,6 +231,15 @@
                 // always executed
             });
         }
+        </script>
+        <div class="text-center my-3">
+            <button id="return" class="btn btn-outline-primary me-2" href="index.html">Back to Main Menu</button>
+        </div>
+        <script>
+            const rebut = document.getElementById("return");
+            rebut.addEventListener("click", function(){
+                window.location.href = "index.html";
+            });
         </script>
     </body>
 </html>

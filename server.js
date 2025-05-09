@@ -1,6 +1,8 @@
 const express = require('express');
 const { getCollectionData, connectDB, getDB } = require('./database.js');
 const cors = require('cors');
+const bcrypt = require('bcrypt');
+
 
 const app = express();
 app.use(cors());
@@ -15,6 +17,7 @@ connectDB().then(async () => {
 }).catch(err => {
   console.error("Failed to connect to DB:", err);
 });
+
 
 async function startGames() {
   const db = getDB();
@@ -217,12 +220,52 @@ app.post('/api/user/create', async (req, res) => {
   //Should probably verify that the account was successfully created as well
 });
 
-//Battleship Endpoints
+//Signin
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+  
+  try {
+    const db = getDB();
+    const user = await db.collection('UserCollection').findOne({ username });
 
+    if (!user) {
+      res.json({ message: 'Invalid username or password.' });
+    }
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (isMatch) {
+      res.json({ message: 'Login successful!' });
+    } else {
+      res.json({ message: 'Invalid username or password.' });
+    }
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ message: 'Server error during login.' });
+  }
+});
+//SignUp
+app.post('/register', async (req, res) => {
+  const db = getDB();
+  const { username, password } = req.body;
+  try {
+    const existingUser = await db.collection('UserCollection').findOne({ username });
+    if (existingUser) {
+      return res.json({ success: false, message: 'Username already exists.' });
+    }
+     //Use bcrypt to hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+      await db.collection('UserCollection').insertOne({ username, password: hashedPassword });
+      res.json({ success: true, message: 'Registration successful!' });
+   } catch (err) {
+     console.error('Registration error:', err);
+     res.status(500).json({ success: false, message: 'Server error during registration.' });
+   }
+});
+//Battleship Endpoints
 app.get('/api/Battleship/:gameID', async (req, res) => {
   try {
     const gameID = req.params.gameID;
-    //console.log(gameID); // Confirm received ID
+    console.log(gameID); // Confirm received ID
 
     const db = getDB();
     const game = await db.collection('BattleShipGames').findOne({gameID : gameID });
@@ -272,7 +315,6 @@ app.get('/api/Battleship/:id/status', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 
 app.post('/api/Battleship/:gameID/votes', async (req, res) => {
   try {
