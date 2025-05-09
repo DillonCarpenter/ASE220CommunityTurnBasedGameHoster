@@ -141,7 +141,7 @@
             async function updateVote(gameID, coordinate) {
                 try {
                     const response = await axios.post(`http://127.0.0.1:3000/api/Battleship/${gameID}/votes`, {
-                        coordinate: coordinate, username: username
+                        coordinate: coordinate, username: localStorage.getItem('signedIn')
                     });
 
                     console.log(response); // Log response to verify structure
@@ -216,7 +216,7 @@
                     });
                     var alreadyVotedBoolean = false;
                     for(const user in alreadyVoted){
-                        if(user == username)
+                        if(user == localStorage.getItem('signedIn'))
                             alreadyVoted = true;
                     }
                     if(alreadyVoted == false){
