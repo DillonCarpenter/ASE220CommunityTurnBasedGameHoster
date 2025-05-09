@@ -82,6 +82,7 @@ async function startGames() {
 
             // Play AI's move
             friendlyBoard = enemyAI(friendlyBoard);
+            const noOneVoted = [];
 
             // Update the game with the new boards and reset the vote count
             await db.collection('BattleShipGames').updateOne(
@@ -92,6 +93,7 @@ async function startGames() {
                   EnemyBoard: enemyBoard,
                   FriendlyBoard: friendlyBoard,
                   timer: 30,  // Reset the timer
+                  alreadyVoted: noOneVoted
                 }
               }
             );
@@ -389,6 +391,7 @@ app.post('/api/Battleship/:gameID/votes', async (req, res) => {
       console.log("totalVotes: ", totalVotes, " voteCap: ",voteCap);
       console.log("just gonna shoot");
       friendlyBoard = enemyAI(friendlyBoard);
+      const noOneVoted = [];
       let popularMove = "";
       let popularVotes = 0;
       for(const cell in enemyBoard){
@@ -410,7 +413,8 @@ app.post('/api/Battleship/:gameID/votes', async (req, res) => {
         { $set: { 
           voteCount: 0,
           EnemyBoard: enemyBoard,
-          FriendlyBoard: friendlyBoard
+          FriendlyBoard: friendlyBoard,
+          alreadyVoted: noOneVoted
         } }
       );
      await db.collection('BattleShipGames').updateOne(
