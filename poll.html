@@ -37,6 +37,7 @@
             let timerElement = document.getElementById("timerStorage");
             let timerInterval;
             var currentlyRenderedBoard = 1;
+            let alreadyVoted;
 
             // Fetch timer
             async function fetchTimerFromServer() {
@@ -140,11 +141,12 @@
             async function updateVote(gameID, coordinate) {
                 try {
                     const response = await axios.post(`http://127.0.0.1:3000/api/Battleship/${gameID}/votes`, {
-                        coordinate: coordinate
+                        coordinate: coordinate, username: username
                     });
 
                     console.log(response); // Log response to verify structure
                     if (response.data.message === 'Vote updated successfully.') {
+
                         alert(`Your vote for ${coordinate} has been counted!`);
                         renderBoard(1); // Refresh the board after updating the vote
                     } else {
@@ -204,10 +206,25 @@
 
                     //cell.innerHTML = `<h3>${coordinate}</h3>`;
                     //If the status is pending, THEN we add the event listener.
-                    if((boardData[coordinate]['status'] == 'pending') && board == 1){
-                        cell.addEventListener('click', function(){
-                                updateVote(gameID, coordinate)
-                        });
+                    axios.get(`http://127.0.0.1:3000/api/Battleship/${gameID}`)
+                    .then(function (response) {
+                        // handle success
+                        alreadyVoted = response.data.alreadyVoted;
+                    }).catch(function (error) {
+                        // handle error
+                        console.log(error);
+                    });
+                    var alreadyVotedBoolean = false;
+                    for(const user in alreadyVoted){
+                        if(user == username)
+                            alreadyVoted = true;
+                    }
+                    if(alreadyVoted == false){
+                        if((boardData[coordinate]['status'] == 'pending') && board == 1){
+                            cell.addEventListener('click', function(){
+                                    updateVote(gameID, coordinate)
+                            });
+                        }
                     }
 
                     //append cell to row
