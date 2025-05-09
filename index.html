@@ -12,13 +12,25 @@
 <link rel="stylesheet" href="index.css" type="text/css">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 <style>
-html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
+html,body,h1,h2,h3,h4,h5,h6 {
+    font-family: "Roboto", sans-serif;
+}
 .w3-sidebar {
-  z-index: 3;
-  width: 250px;
-  top: 43px;
-  bottom: 0;
-  height: inherit;
+    z-index: 3;
+    width: 250px;
+    top: 43px;
+    bottom: 0;
+    height: inherit;
+}
+.btn{
+  background-color: white;
+  color:#009688;
+  border-color:#009688;
+}
+.btn:hover{
+    background-color: #009688;
+    border-color:#009688;
+
 }
 </style>
 </head>
@@ -41,6 +53,7 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
   <a href="javascript:void(0)" onclick="w3_close()" class="w3-right w3-xlarge w3-padding-large w3-hover-black w3-hide-large" title="Close Menu">
     <i class="fa fa-remove"></i>
   </a>
+  <h4 class="w3-bar-item" id="welcome-text"></h4>
   <h4 class="w3-bar-item"><b>Current Games:</b></h4>
   <div id="poll-storage">
 
@@ -81,16 +94,51 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
     <div class="w3-third w3-container">
     </div>
   </div>
-<!--Sign in button-->
-<div id="sign-in">
-  <button class="btn btn-primary" style="background-color: gray;" onClick="signIn()">Sign In</button>
+<!--Sign up/in/out buttons--> 
+<div class="w3-main" style="margin-left:250px">
+    <!--Sign in button-->
+    <div id="buttons">
+        <button class="btn btn-primary" id="sign-in">Sign In</button>
+    <!--Sign up button-->
+        <button class="btn btn-primary" id="sign-up">Register</button>
+    </div>
+      <!--Sign out button-->
+    <div id="buttons">
+        <button class="btn btn-primary" id="sign-out">Sign Out</button>
+    </div>
 </div>
-
-
 <!-- END MAIN -->
 </div>
-
+<!--Hide the game(s) from the sidebar until after the user has signed in-->
 <script>
+    const user = localStorage.getItem('token');
+    const username = localStorage.getItem('signedIn');
+    
+    if (user) {
+      document.getElementById("welcome-text").innerHTML += `<p>Welcome, ${username}!</p>`;
+    } 
+    console.log(user);
+    if(!user){
+        document.getElementById('poll-storage').style.display = "none";
+        document.getElementById('sign-out').style.display = "none";
+
+    }else{
+        document.getElementById('poll-storage').style.display = 'block';
+        document.getElementById('sign-in').style.display = "none";
+        document.getElementById('battleship-create').innerText = 'Create Battleship';
+        document.getElementById('battleship-create').href = 'create.html';
+        document.getElementById('sign-out').style.display = "block";
+        document.getElementById('sign-up').style.display = "none";
+    }
+    const signInButton = document.getElementById("sign-in");
+    const signOutButton = document.getElementById("sign-out");
+    const signUpButton = document.getElementById("sign-up");
+    signInButton.addEventListener("click", function(){
+    window.location.href = "login.html"
+    })
+    signUpButton.addEventListener("click", function(){
+        window.location.href = "signup.html"
+    });
 // Get the Sidebar
 var mySidebar = document.getElementById("mySidebar");
 
@@ -116,39 +164,56 @@ function w3_close() {
 
 </script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-        <script>
-          function fetchGameList() {
-            console.log("Fetching Game List")
-            fetch('http://localhost:3000/')
-
-            .then(response => { 
-              if (!response.ok) throw new Error("Network response was NO GOOD, BAD NEWS!");
-                return response.json();
-
-            }).then(data => {
-                // handle success
-                console.log("Game list received:", data);
-
-                let pollStorage = document.getElementById('poll-storage');
-                let listItems = '';
-                data.forEach(game => {
-                    if(game.gameID != "Default"){
-                      const link = `poll.html?id=${game.gameID}`;
-                      // <a> tags are inline, so the links will show up right next to each other. This is just a super basic test.
-                      //Will have to be changed to render actual css
-                      listItems += `  <a class="w3-bar-item w3-button w3-hover-black" href="${link}">${game.title}</a>`
-                    }
-                });
-                pollStorage.innerHTML = listItems;
-            })
-            .catch(function (error) {
-                // handle error
-                console.log(error);
-            })
-            .finally(function () {
-                // always executed
+    <script>
+      function fetchGameList() {
+        console.log("Fetching Game List")
+        fetch('http://localhost:3000/')
+        .then(response => { 
+          if (!response.ok) throw new Error("Network response was NO GOOD, BAD NEWS!");
+            return response.json();
+        }).then(data => {
+            // handle success
+            console.log("Game list received:", data);
+            let pollStorage = document.getElementById('poll-storage');
+            let listItems = '';
+            data.forEach(game => {
+                if(game.gameID != "Default"){
+                  const link = `poll.html?id=${game.gameID}`;
+                  // <a> tags are inline, so the links will show up right next to each other. This is just a super basic test.
+                  //Will have to be changed to render actual css
+                  listItems += `  <a class="w3-bar-item w3-button w3-hover-black" href="${link}">${game.title}</a>`
+                }
             });
-          }
-        </script>
+            pollStorage.innerHTML = listItems;
+        })
+        .catch(function (error) {
+            // handle error
+            console.log(error);
+        })
+        .finally(function () {
+            // always executed
+        });
+      }
+      function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; // Strip "Bearer"
+
+  if (!token) return res.sendStatus(401);
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403);
+    req.user = user;
+    next();
+  });
+}
+      if(user)
+      {
+        fetchGameList();
+        signOutButton.addEventListener("click", function(){
+            localStorage.removeItem("token");
+            window.location.href = "signout.html"
+        });
+      }
+    </script>
 </body>
 </html>
