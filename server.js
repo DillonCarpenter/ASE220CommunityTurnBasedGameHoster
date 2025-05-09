@@ -3,40 +3,195 @@ const { getCollectionData, connectDB, getDB } = require('./database.js');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 
+
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 // Connect and start server
-connectDB().then(() => {
-  app.listen(3000, () => {
+connectDB().then(async () => {
+  app.listen(3000, async () => {
     console.log("Server is running on port 3000");
-    //Commenting out this logic for now.
-    /*
-
-    while(gameWon == 0){
-      let seconds = 33;
-      const countdownElement = document.getElementById('countdown');
-      const countdown = setInterval(() => {
-          seconds--;
-          if(seconds >= 3) {
-            countdownElement.textContent = (seconds-3);
-          }
-          if (seconds < 3) {
-              clearInterval(countdown);
-              countdownElement.textContent = "Time's up!";
-          }
-          if(seconds < 0) {
-            // timer logic goes here to choose most voted move, and to choose opponent move
-          }
-      }, 1000);
-    }
-    */
+    startGames();
   });
 }).catch(err => {
   console.error("Failed to connect to DB:", err);
 });
 
+
+async function startGames() {
+  const db = getDB();
+  let allGamesOver = false;
+  
+  // Loop until all games are over
+  while (!allGamesOver) {
+    try {
+      // Get all games with pending status to update their timers
+      const games = await db.collection('BattleShipGames').find({ gameStatus: "pending" }).toArray();
+      
+      for (const game of games) {
+        const gameID = game.gameID;
+        const timer = game.timer;
+        const voteCount = game.voteCount;
+        let enemyBoard = game.EnemyBoard;
+        let friendlyBoard = game.FriendlyBoard;
+
+        // Update timer for active games
+        if (timer > 0) {
+          await db.collection('BattleShipGames').updateOne(
+            { gameID },
+            { $inc: { timer: -1 } }  // Decrement the timer by 1
+          );
+        } else if (timer <= 0) {
+          // Process the game when the timer runs out
+          console.log(`Timer ended for game ${gameID}`);
+
+          if (voteCount === 0) {
+            // Reset timer
+            await db.collection('BattleShipGames').updateOne(
+              { gameID },
+              { $set: { timer: 30 } }
+            );
+          } else {
+            // Find the most popular move
+            let popularMove = "";
+            let maxVotes = 0;
+            for (const cell in enemyBoard) {
+              if (enemyBoard[cell]?.votes > maxVotes) {
+                maxVotes = enemyBoard[cell].votes;
+                popularMove = cell;
+              }
+            }
+
+            // Apply the most popular move to the board
+            console.log("cowabunga");
+            if (enemyBoard[popularMove]) {
+              if (enemyBoard[popularMove].ship === 'none') {
+                enemyBoard[popularMove].status = 'miss';
+              } else {
+                enemyBoard[popularMove].status = 'hit';
+              }
+            }
+            for (const cell in enemyBoard) {
+              if (enemyBoard[cell]?.votes) {
+                enemyBoard[cell].votes = 0;
+              }
+            }
+
+            // Play AI's move
+            friendlyBoard = enemyAI(friendlyBoard);
+
+            // Update the game with the new boards and reset the vote count
+            await db.collection('BattleShipGames').updateOne(
+              { gameID },
+              {
+                $set: {
+                  voteCount: 0,
+                  EnemyBoard: enemyBoard,
+                  FriendlyBoard: friendlyBoard,
+                  timer: 30,  // Reset the timer
+                }
+              }
+            );
+            await checkWin(gameID); 
+          }
+        }
+      }
+
+      // Check if all games are over
+      const remainingGames = await db.collection('BattleShipGames').find({ gameStatus: "pending" }).toArray();
+      if (remainingGames.length === 0) {
+        allGamesOver = true;
+      }
+    } catch (err) {
+      console.error("Error updating game timers:", err);
+    }
+    
+    // Delay the next loop iteration to avoid a tight loop ( it was crashing every time)
+    await new Promise(resolve => setTimeout(resolve, 1000));  // Delay for 1 second
+  }
+}
+
+
+
+// Checks for a win
+async function checkWin(gameID){
+  const db = getDB();
+  const game = await db.collection('BattleShipGames').findOne({ gameID: gameID });
+  var friendlyShipsNotHit = 0;
+  var enemyShipsNotHit = 0;
+  const enemyBoard = game.EnemyBoard;
+  const friendlyBoard = game.FriendlyBoard
+
+
+  for (const cell in friendlyBoard) {
+    const status = friendlyBoard[cell].status;
+    const ship = friendlyBoard[cell].ship
+    if (status !== 'hit' && ship !== 'none') {
+      friendlyShipsNotHit++;
+    }
+  }
+  for (const cell in enemyBoard) {
+    const status = enemyBoard[cell].status;
+    const ship = enemyBoard[cell].ship
+    if (status !== 'hit' && ship !== 'none') {
+      enemyShipsNotHit++;
+    }
+  }
+  if(enemyShipsNotHit == 0){
+    await db.collection('BattleShipGames').updateOne(
+      { gameID },
+      {
+        $set: {
+          gameStatus: "win"
+        }
+      }
+    );
+    console.log("win")
+  } else if (friendlyShipsNotHit == 0){
+    await db.collection('BattleShipGames').updateOne(
+      { gameID },
+      {
+        $set: {
+          gameStatus: "lose"
+        }
+      }
+    );
+     console.log("lose")
+  } else {
+     console.log("no wins")
+  }
+
+}
+function enemyAI(friendlyBoard) {
+  const availableTargets = [];
+
+  // Get possible shootable squares
+  for (const cell in friendlyBoard) {
+    const status = friendlyBoard[cell].status;
+    if (status !== 'hit' && status !== 'miss') {
+      availableTargets.push(cell);
+    }
+  }
+
+  // Pick a random untargeted one
+  if (availableTargets.length > 0) {
+    const target = availableTargets[Math.floor(Math.random() * availableTargets.length)];
+    const cell = friendlyBoard[target];
+
+    // Apply hit/miss logic
+    if (cell.ship === 'none') {
+      cell.status = 'miss';
+    } else {
+      cell.status = 'hit';
+    }
+
+    // Display this to console for bug testing
+    console.log(`Enemy AI targeted ${target}: ${cell.status}`);
+  }
+
+  return friendlyBoard;
+}
 // Routes
 
 app.get('/', async (req, res) => {
@@ -126,16 +281,59 @@ app.get('/api/Battleship/:gameID', async (req, res) => {
   }
 });
 
+// Get timer for a game
+
+app.get('/api/Battleship/:id/timer', async (req, res) => {
+  const gameID = req.params.id;
+  try {
+    const db = getDB();
+    const game = await db.collection('BattleShipGames').findOne({ gameID });
+
+    if (game) {
+      res.json({ timer: game.timer });
+    } else {
+      res.status(404).json({ error: 'Game not found' });
+    }
+  } catch (err) {
+    console.error("Error fetching game timer:", err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+app.get('/api/Battleship/:id/status', async (req, res) => {
+  const gameID = req.params.id;
+  try {
+    const db = getDB();
+    const game = await db.collection('BattleShipGames').findOne({ gameID });
+
+    if (game) {
+      res.json({ status: game.status });
+    } else {
+      res.status(404).json({ error: 'Game not found' });
+    }
+  } catch (err) {
+    console.error("Error fetching game status:", err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 app.post('/api/Battleship/:gameID/votes', async (req, res) => {
   try {
     const gameID = req.params.gameID;
     const { coordinate } = req.body;
+    console.log("Received vote for game:", gameID, "coordinate:", coordinate);
+
+    if (!coordinate) {
+      return res.status(400).json({ message: 'Coordinate is required' });
+    }
     const db = getDB();
     const game = await db.collection('BattleShipGames').findOne({ gameID : gameID });
     const enemyBoard = game.EnemyBoard;
+    const voteCap = game.voteLimit;
+    console.log(game.voteLimit);
     let friendlyBoard = game.FriendlyBoard;
     enemyBoard[coordinate].votes += 1;
-    totalVotes = game['voteCount'] +=1;
+    let totalVotes = game.voteCount + 1;
+    game.voteCount = totalVotes;
     await db.collection('BattleShipGames').updateOne(
       { gameID : gameID },
       { $set: { 
@@ -143,7 +341,9 @@ app.post('/api/Battleship/:gameID/votes', async (req, res) => {
         EnemyBoard: enemyBoard } }
     );
     //Once the vote limit is reached, pick the move with the highest votes and call the enemyAI function.
-    if(totalVotes => game['voteLimit']){
+    if(totalVotes >= voteCap){
+      console.log("totalVotes: ", totalVotes, " voteCap: ",voteCap);
+      console.log("just gonna shoot");
       friendlyBoard = enemyAI(friendlyBoard);
       let popularMove = "";
       let popularVotes = 0;
@@ -158,7 +358,7 @@ app.post('/api/Battleship/:gameID/votes', async (req, res) => {
       if(enemyBoard[popularMove]['ship'] == 'none'){
         enemyBoard[popularMove]['status'] = 'miss';
       }else{
-        enemyBoard[popularBoard]['status'] = 'hit';
+        enemyBoard[popularMove]['status'] = 'hit';
       }
       await db.collection('BattleShipGames').updateOne(
         { gameID : gameID },
@@ -168,9 +368,19 @@ app.post('/api/Battleship/:gameID/votes', async (req, res) => {
           FriendlyBoard: friendlyBoard
         } }
       );
+     await db.collection('BattleShipGames').updateOne(
+        { gameID : gameID },
+        { $set: { 
+          timer: 0,
+          voteCount: 0 
+        } }
+      );
+
     }
-    res.end();
+    await checkWin(gameID);
+    res.json({ message: 'Vote updated successfully.' });
   }catch(err){
+    console.error("Server error:", err);
     res.status(500).json({ error: 'Server error.' });
   }
 
@@ -877,7 +1087,9 @@ app.post('/api/Battleship/new-document', async (req, res) => {
         },
         "pollStatus": "open",
         "voteCount": "0",
-        "voteLimit": voteLimit
+        "voteLimit": voteLimit,
+        "timer": 30,
+        "gameStatus": "pending"
       }
     );
 
@@ -890,19 +1102,3 @@ app.post('/api/Battleship/new-document', async (req, res) => {
   
 });
 
-//This function is the enemy AI. Feed it the board with the friendly ships on it as that is the board the enemy fires on.
-function enemyAI(boardState){
-  let coordinateList = [];
-  for(const coordinate in boardState){
-    if (boardState[coordinate]['status'] == "pending"){
-      coordinateList.push(coordinate);
-    }
-  }
-  let choosenCoordinate =  coordinateList[Math.floor(Math.random() * coordinateList.length)]; //Pick a coordinate out of the list
-  if(boardState[choosenCoordinate]['ship'] == 'none'){
-    boardState[choosenCoordinate]['status'] = 'miss';
-  }else{
-    boardState[choosenCoordinate]['status'] = 'hit';
-  }
-  return boardState;
-}
