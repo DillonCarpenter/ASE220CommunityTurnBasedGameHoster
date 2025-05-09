@@ -421,7 +421,8 @@ app.post('/api/Battleship/:gameID/votes', async (req, res) => {
         { gameID : gameID },
         { $set: { 
           timer: 0,
-          voteCount: 0 
+          voteCount: 0,
+          alreadyVoted: noOneVoted
         } }
       );
 
