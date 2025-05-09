@@ -60,6 +60,26 @@ html,body,h1,h2,h3,h4,h5,h6 {
   </div>
 </nav>
 
+<!--Hide the game(s) from the sidebar until after the user has signed in-->
+<script>
+  var signedIn;
+  console.log(signedIn);
+  if(!signedIn){
+      document.getElementById('poll-storage').style.display = "none";
+  }
+  function signIn(){
+      window.location.href = "signin.html"
+      console.log(signedIn);
+      sessionStorage.setItem("signedIn",JSON.stringify(true))
+      document.getElementById('poll-storage').style.display = 'block';
+      document.getElementById('sign-in').style.display = "none";
+      document.getElementById('battleship-create').innerText = 'Create Battleship';
+      document.getElementById('battleship-create').href = 'create.html';
+      fetchGameList();
+  }
+</script>
+<!--/hiding stuff-->
+
 <!-- Overlay effect when opening sidebar on small screens -->
 <div class="w3-overlay w3-hide-large" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
 

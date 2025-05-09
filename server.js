@@ -280,6 +280,25 @@ app.post('/register', async (req, res) => {
 
 });
 
+//Signin
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+  
+  try {
+    const db = getDB();
+    const user = await db.collection('UserCollection').findOne({ username });
+
+    if (user && user.password === password) {
+      res.json({ message: 'Login successful!' });
+    } else {
+      res.json({ message: 'Invalid username or password.' });
+    }
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ message: 'Server error during login.' });
+  }
+});
+
 //Battleship Endpoints
 app.get('/api/Battleship/:gameID', async (req, res) => {
   try {
